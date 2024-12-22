@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Perfect";
+  src: url("/fonts/Perfect.woff2");
+}
+
+html {
+  background: linear-gradient(
+    135deg,
+    #fff,
+    #e8f4ff 25%,
+    #cce4ff 45%,
+    #e1f0ff 65%,
+    #fff
+  );
+}
+
+#static {
+  background: url("https://thedial.infura-ipfs.io/ipfs/Qmb67MxHmRFt4QvJx832G5oT39Pb8cmfVnACdw6BnRUnkc");
+  animation: noise 0.2s steps(10) infinite, rotate 5s linear infinite;
+  opacity: 0.4;
+}
+
+
+@keyframes noise {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 100% 100%, -100% -100%;
+  }
+}
+
+@keyframes rotate {
+  0% {
+    filter: blur(0px) brightness(1);
+  }
+  25% {
+    filter: blur(1px) brightness(1.2);
+  }
+  50% {
+    filter: blur(2px) brightness(0.9);
+  }
+  75% {
+    filter: blur(1px) brightness(1.1);
+  }
+  100% {
+    filter: blur(0px) brightness(1);
+  }
+}
+
+body {
+  animation: transitionState 10s linear infinite;
+}
+
+@keyframes transitionState {
+  0%, 50% {
+    filter: brightness(1);
+  }
+  51%, 100% {
+    filter: hue-rotate(180deg);
+  }
+}
