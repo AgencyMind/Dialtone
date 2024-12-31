@@ -14,7 +14,7 @@ const Modals: FunctionComponent = (): JSX.Element => {
   const { address } = useAccount();
   return (
     <>
-      {context?.gifOpen && <Gif setGifOpen={context?.setGifOpen} />}
+      {context?.gifOpen?.open && <Gif setGifOpen={context?.setGifOpen} />}
       {context?.indexer && (
         <Indexer indexer={context?.indexer} setIndexer={context?.setIndexer} />
       )}

@@ -11,7 +11,10 @@ import {
   StorageClient,
   testnet as storageTestnet,
 } from "@lens-protocol/storage-node-client";
-import { LensAccount } from "@/components/Common/types/common.types";
+import {
+  CurrentSession,
+  LensAccount,
+} from "@/components/Common/types/common.types";
 import { EditorType } from "@/components/Feed/types/feed.types";
 
 export const config = getDefaultConfig({
@@ -28,6 +31,8 @@ const queryClient = new QueryClient();
 
 export const AppContext = createContext<
   | {
+      aiKey: string | undefined;
+      setAiKey: (e: SetStateAction<string | undefined>) => void;
       imageView: string | undefined;
       setImageView: (e: SetStateAction<string | undefined>) => void;
       lensAccount: LensAccount | undefined;
@@ -36,26 +41,18 @@ export const AppContext = createContext<
       storageClient: StorageClient | undefined;
       signless: boolean;
       setSignless: (e: SetStateAction<boolean>) => void;
-      gifOpen: boolean;
-      setGifOpen: (e: SetStateAction<boolean>) => void;
+      gifOpen: { id: string; gif: string; open: boolean };
+      setGifOpen: (
+        e: SetStateAction<{ id: string; gif: string; open: boolean }>
+      ) => void;
       createAccount: boolean;
       setCreateAccount: (e: SetStateAction<boolean>) => void;
       notification: string | undefined;
       setNotification: (e: SetStateAction<string | undefined>) => void;
       indexer: string | undefined;
       setIndexer: (e: SetStateAction<string | undefined>) => void;
-      setCurrentSession: (
-        e: SetStateAction<{
-          post?: Post;
-          editors: EditorType[];
-          currentIndex: number;
-        }>
-      ) => void;
-      currentSession: {
-        post?: Post;
-        editors: EditorType[];
-        currentIndex: number;
-      };
+      setCurrentSession: (e: SetStateAction<CurrentSession>) => void;
+      currentSession: CurrentSession;
     }
   | undefined
 >(undefined);
@@ -63,12 +60,17 @@ export const AppContext = createContext<
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [imageView, setImageView] = useState<string | undefined>();
   const [lensAccount, setLensAccount] = useState<LensAccount | undefined>();
+  const [aiKey, setAiKey] = useState<string | undefined>("");
   const [lensClient, setLensClient] = useState<PublicClient | undefined>();
   const [indexer, setIndexer] = useState<string | undefined>();
   const [createAccount, setCreateAccount] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | undefined>();
   const [signless, setSignless] = useState<boolean>(false);
-  const [gifOpen, setGifOpen] = useState<boolean>(false);
+  const [gifOpen, setGifOpen] = useState<{
+    id: string;
+    gif: string;
+    open: boolean;
+  }>({ id: "", gif: "", open: false });
   const [currentSession, setCurrentSession] = useState<{
     post?: Post;
     editors: EditorType[];
@@ -114,6 +116,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               setGifOpen,
               signless,
               setSignless,
+              aiKey,
+              setAiKey,
             }}
           >
             {children}

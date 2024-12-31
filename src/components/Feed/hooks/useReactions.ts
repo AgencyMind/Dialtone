@@ -1,7 +1,7 @@
 import { StorageClient } from "@lens-protocol/storage-node-client";
 import { SetStateAction, useState } from "react";
 import createPost from "../../../../graphql/lens/mutations/createPost";
-import { SessionClient } from "@lens-protocol/client";
+import { MainContentFocus, SessionClient } from "@lens-protocol/client";
 import { v4 as uuidv4 } from "uuid";
 import createRepost from "../../../../graphql/lens/mutations/createRepost";
 import addReaction from "../../../../graphql/lens/mutations/addReaction";
@@ -13,7 +13,8 @@ const useReactions = (
   setIndexer: (e: SetStateAction<string | undefined>) => void,
   setNotification: (e: SetStateAction<string | undefined>) => void,
   id: string,
-  reaction: string
+  reaction: string,
+  gifOpen: { id: string; gif: string } | undefined
 ) => {
   const [content, setContent] = useState<string>("");
   const [postLoading, setPostLoading] = useState<boolean>(false);
@@ -32,14 +33,27 @@ const useReactions = (
     if (!commentQuote) return;
     setPostLoading(true);
     try {
+      let focus = MainContentFocus.TextOnly;
+      let schema = "https://json-schemas.lens.dev/posts/text/3.0.0.json";
+      let image = {};
+      if (gifOpen?.id == commentQuote) {
+        focus = MainContentFocus.Image;
+        schema = "https://json-schemas.lens.dev/posts/image/3.0.0.json";
+        image = {
+          type: "image/png",
+          item: gifOpen?.gif,
+        };
+      }
+
       const { uri } = await storageClient.uploadAsJson({
-        $schema: "https://json-schemas.lens.dev/posts/text/3.0.0.json",
+        $schema: schema,
         lens: {
           mainContentFocus: focus,
           title: content?.slice(0, 10),
           content: content,
           id: uuidv4(),
           locale: "en",
+          ...image,
           tags: ["dialtone"],
         },
       });
@@ -143,14 +157,27 @@ const useReactions = (
     if (!commentQuote) return;
     setPostLoading(true);
     try {
+      let focus = MainContentFocus.TextOnly;
+      let schema = "https://json-schemas.lens.dev/posts/text/3.0.0.json";
+      let image = {};
+      if (gifOpen?.id == commentQuote) {
+        focus = MainContentFocus.Image;
+        schema = "https://json-schemas.lens.dev/posts/image/3.0.0.json";
+        image = {
+          type: "image/png",
+          item: gifOpen?.gif,
+        };
+      }
+
       const { uri } = await storageClient.uploadAsJson({
-        $schema: "https://json-schemas.lens.dev/posts/text/3.0.0.json",
+        $schema: schema,
         lens: {
           mainContentFocus: focus,
           title: content?.slice(0, 10),
           content: content,
           id: uuidv4(),
           locale: "en",
+          ...image,
           tags: ["dialtone"],
         },
       });

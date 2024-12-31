@@ -10,7 +10,10 @@ const Gif: FunctionComponent<GifProps> = ({ setGifOpen }): JSX.Element => {
   return (
     <div
       className="inset-0 justify-center fixed z-50 bg-opacity-50 backdrop-blur-sm overflow-y-hidden grid grid-flow-col auto-cols-auto w-full h-auto cursor-pointer items-center justify-center"
-      onClick={() => setGifOpen(false)}
+      onClick={() => setGifOpen((prev) => ({
+        ...prev,
+        open: false
+      }))}
     >
       <div
         className="rounded-sm w-96 h-fit text-sm text-black flex items-center justify-start p-3 cursor-default flex-col gap-6 bg-dark border border-sea max-h-[15rem]"
@@ -69,6 +72,16 @@ const Gif: FunctionComponent<GifProps> = ({ setGifOpen }): JSX.Element => {
                 <div
                   key={index}
                   className="relative w-20 h-20 rounded-md flex items-center justify-center cursor-pointer hover:opacity-70 bg-black border border-sea"
+                  onClick={() =>
+                    setGifOpen(
+                      (prev) =>
+                        ({
+                          ...prev,
+                          open: false,
+                          gif: gif?.media_formats?.gif?.url as string,
+                        } as any)
+                    )
+                  }
                 >
                   <Image
                     layout="fill"

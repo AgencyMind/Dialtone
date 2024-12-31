@@ -1,23 +1,19 @@
-import { Screen } from "@/components/Common/types/common.types";
-import { EditorType } from "@/components/Feed/types/feed.types";
+import { CurrentSession, Screen } from "@/components/Common/types/common.types";
 import { Post } from "@lens-protocol/client";
 import { SetStateAction } from "react";
 
-
 export type SessionSwitchProps = {
-  currentSession: {
-    post?: Post;
-    editors: EditorType[];
-    currentIndex: number;
-  };
+  currentSession: CurrentSession;
+  setCurrentSession: (e: SetStateAction<CurrentSession>) => void;
   textContent: string;
   postLoading: boolean;
   setTextContent: (e: SetStateAction<string>) => void;
+  expand: boolean;
 };
 
 export type ActivePostProps = {
   post: Post | undefined;
-  setScreen: (e: SetStateAction<Screen>) => void;
+  setScreen?: (e: SetStateAction<Screen>) => void;
 };
 
 export type ChatProps = {
@@ -25,6 +21,8 @@ export type ChatProps = {
   content: string;
   setContent: (e: SetStateAction<string>) => void;
   agentLoading: boolean;
+  aiKey: string | undefined;
+  setScreen: (e: SetStateAction<Screen>) => void;
 };
 
 export type AIResponseProps = {

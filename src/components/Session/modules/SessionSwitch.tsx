@@ -15,9 +15,11 @@ import useVideo from "../hooks/useVideo";
 
 const SessionSwitch: FunctionComponent<SessionSwitchProps> = ({
   currentSession,
+  setCurrentSession,
   setTextContent,
   postLoading,
   textContent,
+  expand,
 }): JSX.Element => {
   const {
     handleMouseDown,
@@ -31,7 +33,8 @@ const SessionSwitch: FunctionComponent<SessionSwitchProps> = ({
     brushColor,
     setBrushSize,
     brushSize,
-  } = useImage(postLoading);
+    parentRef,
+  } = useImage(postLoading, setCurrentSession);
   const { initImage, setInitImage, filter, setFilter, videoRef } = useVideo();
   switch (currentSession?.editors?.[currentSession?.currentIndex]) {
     case EditorType.Audio:
@@ -42,12 +45,17 @@ const SessionSwitch: FunctionComponent<SessionSwitchProps> = ({
       );
     case EditorType.Image:
       return (
-        <div className="relative w-full h-full items-center justify-center flex gap-4 flex-col border border-sea rounded-md text-xs font-digi text-black">
+        <div
+          className="relative w-full h-full items-center justify-center flex gap-4 flex-col border border-sea rounded-md text-xs font-digi text-black"
+          ref={parentRef}
+          key={`parent-${expand.toString()}`}
+        >
           <canvas
             ref={canvasRef}
             width={"100%"}
             height={"100%"}
-            style={{ width: "100%", height: "100%" }}
+            key={`canvas-${expand.toString()}`}
+            style={{ width: parentRef.current?.clientWidth, height: parentRef.current?.clientHeight }}
             onMouseDown={() => handleMouseDown()}
             onMouseUp={() => handleMouseUp()}
             onMouseMove={(e) => handleMouseMove(e as any)}
@@ -152,6 +160,7 @@ const SessionSwitch: FunctionComponent<SessionSwitchProps> = ({
                   "border w-full h-full overflow-y-scroll border-sea p-2 focus:outline-none",
               },
             }}
+            key={expand.toString()}
             editable={!postLoading}
             extensions={[
               Color.configure({ types: [TextStyle.name, ListItem.name] }),
@@ -197,6 +206,23 @@ const SessionSwitch: FunctionComponent<SessionSwitchProps> = ({
                 </div>
               </div>
             </div>
+            <div className="relative w-full h-full flex items-start justify-start">
+              <div className="relative w-28 h-fit flex items-start justify-start gap-2 flex-col font-digi text-sun text-xxs text-center">
+                {FILTERS.map((fil, index) => {
+                  return (
+                    <div
+                      onClick={() => setFilter(fil)}
+                      key={index}
+                      className={`cursor-pointer hover:opacity-70 relative w-full h-fit px-2 py-1 items-center justify-center flex bg-darker rounded-full ${
+                        fil == filter && "border-2 border-sun"
+                      }`}
+                    >
+                      {fil}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
             <div className="relative w-full h-fit flex flex-col gap-2 justify-between items-center gap-2">
               <div className="relative w-fit h-fit flex text-xxs text-center">
                 Create your <br /> own filters.
@@ -232,35 +258,16 @@ const SessionSwitch: FunctionComponent<SessionSwitchProps> = ({
               </label>
             </div>
           </div>
-          <div className="relative w-full h-full flex items-start justify-between gap-2 flex-row p-2">
-            <div className="relative w-full h-full flex items-start justify-start">
-              <div className="relative w-full h-fit flex items-start justify-start gap-2 flex-col font-digi text-sun text-xxs text-center">
-                {FILTERS.map((fil, index) => {
-                  return (
-                    <div
-                      onClick={() => setFilter(fil)}
-                      key={index}
-                      className={`cursor-pointer hover:opacity-70 relative w-full h-fit px-2 py-1 items-center justify-center flex bg-darker rounded-full ${
-                        fil == filter && "border-2 border-sun"
-                      }`}
-                    >
-                      {fil}
-                    </div>
-                  );
-                })}
-              </div>
+          <div className="relative w-full h-full flex items-start justify-between gap-3 flex-col p-2">
+            <div className="relative w-full h-full bg-darker rounded-md flex">
+              <video
+                ref={videoRef}
+                className="absolute top-0 left-0 w-full h-full object-cover rounded-md"
+                playsInline
+                muted
+              ></video>
             </div>
-            <div className="relative w-full h-full flex items-start justify-between gap-3 flex-col">
-              <div className="relative w-full h-full bg-darker rounded-md flex">
-                <video
-                  ref={videoRef}
-                  className="absolute top-0 left-0 w-full h-full object-cover rounded-md"
-                  playsInline
-                  muted
-                ></video>
-              </div>
-              <div className="relative w-full h-full bg-darker rounded-md flex"></div>
-            </div>
+            <div className="relative w-full h-full bg-darker rounded-md flex"></div>
           </div>
         </div>
       );

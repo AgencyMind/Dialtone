@@ -1,5 +1,5 @@
 import { SetStateAction, useEffect, useState } from "react";
-import { Social } from "../types/common.types";
+import { Social } from "../types/feed.types";
 import {
   MainContentFocus,
   PageSize,
@@ -11,15 +11,12 @@ import {
 import { fetchPosts } from "@lens-protocol/client/actions";
 import { FEED_TYPES } from "@/lib/constants";
 import { EditorType } from "@/components/Feed/types/feed.types";
+import { CurrentSession } from "@/components/Common/types/common.types";
 
 const useFeed = (
   client: SessionClient | PublicClient | undefined,
   setCurrentSession: (
-    e: SetStateAction<{
-      post?: Post;
-      editors: EditorType[];
-      currentIndex: number
-    }>
+    e: SetStateAction<CurrentSession>
   ) => void
 ) => {
   const [socials, setSocials] = useState<Social[]>([Social.Lens]);

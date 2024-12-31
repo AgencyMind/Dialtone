@@ -24,13 +24,17 @@ export default function Home() {
     login,
     logout,
     lensLoading,
+    expand,
+    setExpand,
   } = useScreens(
     address,
     context?.lensClient!,
     context?.lensAccount,
     context?.setLensAccount!,
     context?.setIndexer!,
-    context?.setCreateAccount!
+    context?.setCreateAccount!,
+    context?.aiKey!,
+    context?.setAiKey!
   );
 
   return (
@@ -131,7 +135,11 @@ export default function Home() {
         </div>
       </div>
       <div className="relative w-full h-full justify-start items-center tablet:items-start tablet:justify-center flex flex-col tablet:flex-row gap-20">
-        <div className="relative w-full tablet:w-72 h-fit tablet:h-full flex items-center tablet:items-start justify-between tablet:justify-center gap-8 flex-wrap tablet:flex-col">
+        <div
+          className={`relative h-fit tablet:h-full flex items-center tablet:items-start justify-between tablet:justify-center gap-8 flex-wrap tablet:flex-col ${
+            expand && screen === SCREENS[1] ? "w-fit" : "w-full tablet:w-72"
+          }`}
+        >
           {SCREENS?.slice(0, -1).map((item, key) => {
             return (
               <div
@@ -140,31 +148,36 @@ export default function Home() {
                   item !== screen && "opacity-60"
                 }`}
               >
-                <div className="hidden relative w-fit h-fit tablet:flex items-center justify-center">
-                  <div className="relative w-8 h-8 flex items-center justify-center">
-                    {item == screen && (
-                      <Image
-                        draggable={false}
-                        layout="fill"
-                        objectFit="contain"
-                        src={`${INFURA_GATEWAY}QmShDz8mrGpL6bythi9dwfKGAhFRUGwdn7mzKB8WjLorb5`}
-                      />
-                    )}
+                {(!expand || (expand && screen !== SCREENS[1])) && (
+                  <div className="hidden relative w-fit h-fit tablet:flex items-center justify-center">
+                    <div className="relative w-8 h-8 flex items-center justify-center">
+                      {item == screen && (
+                        <Image
+                          draggable={false}
+                          layout="fill"
+                          objectFit="contain"
+                          src={`${INFURA_GATEWAY}QmShDz8mrGpL6bythi9dwfKGAhFRUGwdn7mzKB8WjLorb5`}
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="relative w-full h-fit flex items-center justify-center tablet:items-start tablet:justify-start flex-col gap-1.5">
-                  <div
-                    className="relative w-fit h-fit flex text-sm tablet:text-2xl cursor-pointer hover:opacity-70"
-                    onClick={() => setScreen(item)}
-                  >
-                    <div className="relative w-fit h-fit  text-white whitespace-nowrap text-center tablet:text-left uppercase">
-                      {item?.title}
+                  {(!expand || (expand && screen !== SCREENS[1])) && (
+                    <div
+                      className="relative w-fit h-fit flex text-sm tablet:text-2xl cursor-pointer hover:opacity-70"
+                      onClick={() => setScreen(item)}
+                    >
+                      <div className="relative w-fit h-fit  text-white whitespace-nowrap text-center tablet:text-left uppercase">
+                        {item?.title}
+                      </div>
+                      <div className="absolute left-0.5 top-0.5 whitespace-nowrap text-center tablet:text-left top-0 w-fit h-fit  text-lemon uppercase">
+                        {item?.title}
+                      </div>
                     </div>
-                    <div className="absolute left-0.5 top-0.5 whitespace-nowrap text-center tablet:text-left top-0 w-fit h-fit  text-lemon uppercase">
-                      {item?.title}
-                    </div>
-                  </div>
-                  {item == screen ? (
+                  )}
+                  {item == screen &&
+                  (!expand || (expand && screen !== SCREENS[1])) ? (
                     <>
                       <div
                         className={`tablet:hidden flex relative w-8 h-8 cursor-pointer hover:opacity-70`}
@@ -184,6 +197,7 @@ export default function Home() {
                   ) : (
                     <div
                       className={`relative w-8 h-8 cursor-pointer hover:opacity-70`}
+                      title={item.title}
                       onClick={() => setScreen(item)}
                     >
                       <Image
@@ -199,9 +213,20 @@ export default function Home() {
             );
           })}
         </div>
-        <div className="relative w-full tablet:w-[40rem] h-full flex items-start justify-start gap-4">
+        <div
+          className={`relative  h-full flex items-start justify-start gap-4 ${
+            !expand || (expand && screen !== SCREENS[1])
+              ? "w-full tablet:w-[40rem]"
+              : "w-full"
+          }`}
+        >
           <ScreenSwitch
+            gifOpen={context?.gifOpen}
             screen={screen}
+            aiKey={context?.aiKey}
+            expand={expand}
+            lensAccount={context?.lensAccount}
+            setExpand={setExpand}
             setGifOpen={context?.setGifOpen!}
             setImageView={context?.setImageView!}
             lensClient={context?.lensClient!}

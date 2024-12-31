@@ -82,7 +82,7 @@ const MetadataSwitch: FunctionComponent<MetadataSwitchProps> = ({
               >
                 <Image
                   layout="fill"
-                  className="rounded-md"
+                  className="rounded-md w-full relative flex"
                   src={`${INFURA_GATEWAY}${
                     ((data as ImageMetadata)?.image?.item as string)?.split(
                       "ipfs://"

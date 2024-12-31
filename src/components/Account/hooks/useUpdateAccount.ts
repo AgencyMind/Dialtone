@@ -10,10 +10,11 @@ import pollResult from "@/lib/helpers/pollResult";
 const useUpdateAccount = (
   lensAccount: LensAccount | undefined,
   storageClient: StorageClient,
-  setLensAccount: (e: SetStateAction<LensAccount | undefined>) => void
+  setLensAccount: (e: SetStateAction<LensAccount | undefined>) => void,
+  aiKey: string | undefined,
+  setAiKey: (e: SetStateAction<string | undefined>) => void
 ) => {
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
-  const [aiKey, setAiKey] = useState<string | undefined>("");
   const [aiLoading, setAiLoading] = useState<boolean>(false);
   const [updatedAccount, setUpdatedAccount] = useState<{
     pfp?: string | Blob | undefined;
@@ -25,7 +26,7 @@ const useUpdateAccount = (
     name: lensAccount?.account?.metadata?.name || "",
   });
 
-  const handleAIKey = async () => {
+  const handleSetAIKey = async () => {
     setAiLoading(true);
     try {
     } catch (err: any) {
@@ -149,9 +150,7 @@ const useUpdateAccount = (
     setUpdatedAccount,
     handleUpdateAccount,
     updateLoading,
-    aiKey,
-    setAiKey,
-    handleAIKey,
+    handleSetAIKey,
     aiLoading,
   };
 };

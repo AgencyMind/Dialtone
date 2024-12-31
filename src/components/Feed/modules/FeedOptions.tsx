@@ -1,7 +1,7 @@
 import { FEED_TYPES, INFURA_GATEWAY } from "@/lib/constants";
 import Image from "next/legacy/image";
 import { FunctionComponent, JSX } from "react";
-import { FeedOptionsProps, Social } from "../types/common.types";
+import { FeedOptionsProps, Social } from "../types/feed.types";
 
 const FeedOptions: FunctionComponent<FeedOptionsProps> = ({
   socials,
@@ -86,7 +86,10 @@ const FeedOptions: FunctionComponent<FeedOptionsProps> = ({
                   <div
                     key={key}
                     className="relative flex w-full h-7 rounded-md bg-vil active:scale-95 cursor-pointer items-center justify-center text-center text-xs text-black hover:opacity-80 border border-black"
-                    onClick={() => setFeedType(type)}
+                    onClick={() => {
+                      setFeedTypeOpen(false);
+                      setFeedType(type);
+                    }}
                   >
                     {type}
                   </div>

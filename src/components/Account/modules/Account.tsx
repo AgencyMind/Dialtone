@@ -11,14 +11,14 @@ const Account: FunctionComponent = (): JSX.Element => {
     setUpdatedAccount,
     handleUpdateAccount,
     updateLoading,
-    aiKey,
     aiLoading,
-    setAiKey,
-    handleAIKey,
+    handleSetAIKey,
   } = useUpdateAccount(
     context?.lensAccount,
     context?.storageClient!,
-    context?.setLensAccount!
+    context?.setLensAccount!,
+    context?.aiKey!,
+    context?.setAiKey!
   );
   return (
     <div className="relative w-full h-full flex items-start justify-start flex-col gap-4 pb-10">
@@ -174,7 +174,9 @@ const Account: FunctionComponent = (): JSX.Element => {
                   />
                 </div>
               ) : (
-                <div className="relative flex w-fit h-fit font-digi">Update</div>
+                <div className="relative flex w-fit h-fit font-digi">
+                  Update
+                </div>
               )}
             </div>
           </div>
@@ -185,15 +187,15 @@ const Account: FunctionComponent = (): JSX.Element => {
             <input
               disabled={aiLoading}
               className="relative w-full h-8 border border-ocean focus:outline-none p-1 rounded-md"
-              value={aiKey}
-              onChange={(e) => setAiKey(e.target.value)}
+              value={context?.aiKey}
+              onChange={(e) => context?.setAiKey?.(e.target.value)}
             />
           </div>
           <div
             className={`relative px-3 py-1 flex items-center justify-center text-black w-28 h-8 ${
               !aiLoading && "cursor-pointer active:scale-95"
             }`}
-            onClick={() => !aiLoading && handleAIKey()}
+            onClick={() => !aiLoading && handleSetAIKey()}
           >
             <div className="absolute top-0 left-0 flex w-28 h-8">
               <Image

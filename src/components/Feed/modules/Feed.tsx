@@ -22,6 +22,7 @@ const Feed: FunctionComponent<FeedProps> = ({
   setSignless,
   setIndexer,
   setNotification,
+  gifOpen
 }): JSX.Element => {
   const {
     feedType,
@@ -61,7 +62,7 @@ const Feed: FunctionComponent<FeedProps> = ({
           loader={<></>}
           className="relative w-full gap-4 flex flex-col items-start justify-start"
         >
-          {feedLoading
+          {feedLoading || feed?.length < 1
             ? Array.from({ length: 20 }).map((_, key) => {
                 return (
                   <div
@@ -121,6 +122,7 @@ const Feed: FunctionComponent<FeedProps> = ({
                     <ReactionsBar
                       setGifOpen={setGifOpen}
                       post={post as Post}
+                      gifOpen={gifOpen}
                       setCurrentSession={setCurrentSession}
                       setScreen={setScreen}
                       currentSession={currentSession}

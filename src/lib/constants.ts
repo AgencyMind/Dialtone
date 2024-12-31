@@ -49,3 +49,6 @@ export const SCREENS: Screen[] = [
 ];
 
 export const FEED_TYPES: string[] = ["for you", "video", "image", "text"];
+
+export const SESSION_DATA_CONTRACT: `0x${string}` = "0x";
+export const MEME_DATA_CONTRACT: `0x${string}` = "0x";

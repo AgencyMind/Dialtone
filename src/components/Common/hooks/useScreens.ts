@@ -1,6 +1,6 @@
 import { SetStateAction, useEffect, useState } from "react";
-import { LensAccount, Social, Screen } from "../types/common.types";
-import { evmAddress, Post, PublicClient } from "@lens-protocol/client";
+import { LensAccount, Screen } from "../types/common.types";
+import { evmAddress, PublicClient } from "@lens-protocol/client";
 import { createWalletClient, custom } from "viem";
 import { chains } from "@lens-network/sdk/viem";
 import {
@@ -8,7 +8,6 @@ import {
   revokeAuthentication,
 } from "@lens-protocol/client/actions";
 import { SCREENS, STORAGE_NODE } from "@/lib/constants";
-import { EditorType } from "@/components/Feed/types/feed.types";
 
 const useScreens = (
   address: `0x${string}` | undefined,
@@ -16,12 +15,21 @@ const useScreens = (
   lensAccount: LensAccount | undefined,
   setLensAccount: (e: SetStateAction<LensAccount | undefined>) => void,
   setIndexer: (e: SetStateAction<string | undefined>) => void,
-  setCreateAccount: (e: SetStateAction<boolean>) => void
+  setCreateAccount: (e: SetStateAction<boolean>) => void,
+  aiKey: string | undefined,
+  setAikey: (e: SetStateAction<string | undefined>) => void
 ) => {
   const [screen, setScreen] = useState<Screen>(SCREENS[0]);
   const [accountOpen, setAccountOpen] = useState<boolean>(false);
   const [lensLoading, setLensLoading] = useState<boolean>(false);
+  const [expand, setExpand] = useState<boolean>(false);
 
+  const handleGetAIKey = async () => {
+    try {
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  };
 
   const login = async () => {
     if (!address || !lensClient) return;
@@ -191,6 +199,10 @@ const useScreens = (
     }
   }, [address]);
 
+  useEffect(() => {
+    handleGetAIKey();
+  }, []);
+
   return {
     screen,
     setScreen,
@@ -199,6 +211,8 @@ const useScreens = (
     login,
     logout,
     lensLoading,
+    expand,
+    setExpand,
   };
 };
 

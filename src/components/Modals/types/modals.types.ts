@@ -28,7 +28,7 @@ export type NotificationProps = {
 };
 
 export type GifProps = {
-  setGifOpen: (e: SetStateAction<boolean>) => void;
+  setGifOpen: (e: SetStateAction<{ id: string; gif: string; open: boolean }>) => void;
 };
 
 export type SignlessProps = {

@@ -1,4 +1,4 @@
-import { INFURA_GATEWAY } from "@/lib/constants";
+import { INFURA_GATEWAY, SCREENS } from "@/lib/constants";
 import Image from "next/legacy/image";
 import { FunctionComponent, JSX } from "react";
 import { ChatProps } from "../types/session.types";
@@ -8,12 +8,21 @@ export const Chat: FunctionComponent<ChatProps> = ({
   content,
   setContent,
   agentLoading,
+  aiKey,
+  setScreen,
 }): JSX.Element => {
   return (
     <div className="relative flex w-full h-fit">
       <div className="relative w-full h-40 rounded-md border border-sea bg-gris text-black text-sm p-2 flex flex-col gap-2 items-start justify-between">
-        <div className="relative w-fit h-fit font-digi flex text-left">
-          Message your mirror agent
+        <div
+          className={`"relative w-fit h-fit font-digi flex text-left ${
+            !aiKey && "cursor-pointer"
+          }`}
+          onClick={() => !aiKey && setScreen(SCREENS[SCREENS.length - 1])}
+        >
+          {aiKey
+            ? "Message your mirror agent"
+            : "Set your API key here to message your mirror agent"}
         </div>
         <textarea
           onChange={(e) => setContent(e.target.value)}

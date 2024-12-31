@@ -1,6 +1,5 @@
 import { FunctionComponent, JSX } from "react";
-import { ScreenSwitchProps, Social } from "../types/common.types";
-import Feed from "./Feed";
+
 import Account from "@/components/Account/modules/Account";
 import SessionSwitch from "@/components/Session/modules/SessionSwitch";
 import ActivePost from "@/components/Session/modules/ActivePost";
@@ -9,7 +8,16 @@ import Chat from "@/components/Session/modules/Chat";
 import Image from "next/legacy/image";
 import { INFURA_GATEWAY } from "@/lib/constants";
 import useSession from "@/components/Session/hooks/useSession";
-import { EditorType } from "@/components/Feed/types/feed.types";
+import { EditorType, Social } from "@/components/Feed/types/feed.types";
+
+import { useAccount } from "wagmi";
+import { createPublicClient, http } from "viem";
+import { chains } from "@lens-network/sdk/viem";
+import { ScreenSwitchProps } from "../types/common.types";
+import Memes from "@/components/Memes/modules/Memes";
+import Memories from "@/components/Memories/modules/Memories";
+import Reach from "@/components/Reach/modules/Reach";
+import Feed from "@/components/Feed/modules/Feed";
 
 const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
   screen,
@@ -24,7 +32,17 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
   setSignless,
   setIndexer,
   setNotification,
+  setExpand,
+  expand,
+  lensAccount,
+  aiKey,
+  gifOpen
 }): JSX.Element => {
+  const { address } = useAccount();
+  const publicClient = createPublicClient({
+    chain: chains.testnet,
+    transport: http("https://rpc.testnet.lens.dev"),
+  });
   const {
     socialPost,
     setSocialPost,
@@ -35,65 +53,64 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
     postLoading,
     handlePost,
     setTextContent,
-    textContent
+    textContent,
+    saveSessionLoading,
+    handleSaveSession,
   } = useSession(
     sessionClient!,
     storageClient,
     setSignless,
     setNotification,
-    setIndexer
+    setIndexer,
+    publicClient,
+    address,
+    currentSession
   );
+
   switch (screen?.title) {
     case "Account":
       return <Account />;
 
     case "Memes":
-      return (
-        <div className="relative w-full h-fit flex items-start justify-start flex-col gap-4 pb-10">
-          {Array.from({ length: 20 }).map((_, key) => {
-            return (
-              <div
-                key={key}
-                className="relative w-full h-[32rem] rounded-md bg-white"
-              ></div>
-            );
-          })}
-        </div>
-      );
+      return <Memes />;
 
     case "Memories":
       return (
-        <div className="relative w-full h-fit flex items-start justify-start flex-col gap-4 pb-10">
-          {Array.from({ length: 20 }).map((_, key) => {
-            return (
-              <div
-                key={key}
-                className="relative w-full h-[32rem] rounded-md bg-white"
-              ></div>
-            );
-          })}
-        </div>
+        <Memories
+          setScreen={setScreen}
+          setCurrentSession={setCurrentSession}
+          currentSession={currentSession}
+        />
       );
 
     case "Reach":
       return (
-        <div className="relative w-full h-fit flex items-start justify-start flex-col gap-4 pb-10">
-          {Array.from({ length: 20 }).map((_, key) => {
-            return (
-              <div
-                key={key}
-                className="relative w-full h-[32rem] rounded-md bg-white"
-              ></div>
-            );
-          })}
-        </div>
+        <Reach
+          gifOpen={gifOpen}
+          setImageView={setImageView}
+          setCurrentSession={setCurrentSession}
+          currentSession={currentSession}
+          storageClient={storageClient}
+          sessionClient={sessionClient}
+          lensClient={lensClient}
+          setSignless={setSignless}
+          setIndexer={setIndexer}
+          setNotification={setNotification}
+          lensAccount={lensAccount}
+          setGifOpen={setGifOpen}
+          setScreen={setScreen}
+        />
       );
 
     case "Sessions":
       return (
         <div className="relative w-full h-full pb-6">
-          <div className="relative w-full h-full flex bg-white rounded-md flex flex-row gap-3 items-start justify-between p-4 border-2 border-sea">
-            <div className="relative w-80 h-full items-start justify-between flex flex-col gap-3 p-2 border border-sea bg-gris/50 rounded-md">
+          <div className="relative w-full h-full bg-white rounded-md flex flex-row gap-3 items-start justify-between p-4 border-2 border-sea">
+            <div
+              className={`relative h-full items-start justify-between flex flex-col gap-3 p-2 border border-sea bg-gris/50 rounded-md ${
+                !expand ? "w-80" : "w-[32rem]"
+              }`}
+            >
               <ActivePost post={currentSession?.post} setScreen={setScreen} />
               <AIResponse conversation={[]} />
               <Chat
@@ -101,9 +118,15 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
                 content={content}
                 setContent={setContent}
                 agentLoading={agentLoading}
+                aiKey={aiKey}
+                setScreen={setScreen}
               />
             </div>
-            <div className="relative w-full h-full flex flex-col gap-3 items-start justify-between bg-gris/50 border border-sea rounded-md p-2">
+            <div
+              className={
+                "relative w-full h-full flex flex-col gap-3 items-start justify-between bg-gris/50 border border-sea rounded-md p-2"
+              }
+            >
               <div className="relative w-full h-fit flex flex-row justify-between items-center gap-2">
                 <div className="relative w-fit py-1 px-2 h-fit flex flex-row gap-1 items-center justify-center galaxy:items-start galaxy:justify-start rounded-full border border-viol bg-white">
                   {[
@@ -124,7 +147,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
                     return (
                       <div
                         key={key}
-                        className={`border border-vil w-6 h-6 cursor-pointer flex relative hover:opacity-70 rounded-full ${
+                        className={`border border-vil w-6 h-6 cursor-pointer flex relative hover:opacity-70 rounded-full bg-vil ${
                           socialPost.includes(item.social) && "opacity-70"
                         }`}
                         onClick={() =>
@@ -232,40 +255,83 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
                   </div>
                 </div>
               </div>
-              <div className="relative w-full h-full p-2 rounded-md bg-white flex items-start justify-between flex-col gap-3">
+              <div className="relative w-full h-full p-2 rounded-md bg-white flex items-start justify-between flex-col gap-3 overflow-y-scroll">
                 <SessionSwitch
                   currentSession={currentSession}
                   setTextContent={setTextContent}
                   postLoading={postLoading}
                   textContent={textContent}
+                  expand={expand}
+                  setCurrentSession={setCurrentSession}
                 />
-                <div className="relative flex w-full justify-end h-fit">
+                <div className="relative flex w-full justify-between gap-2 flex-row h-fit">
                   <div
-                    className={`relative px-3 py-1 flex items-center justify-center text-black w-28 h-8 cursor-pointer active:scale-95`}
-                    onClick={() => !postLoading && handlePost()}
+                    className="relative cursor-pointer w-8 h-8 rounded-full flex"
+                    onClick={() => setExpand(!expand)}
                   >
-                    <div className="absolute top-0 left-0 flex w-28 h-8">
-                      <Image
-                        src={`${INFURA_GATEWAY}QmRU57vbmZm7EbKrJksFD6SfyLkZ2qUwfZHqXzy8XJvZAH`}
-                        layout="fill"
-                        objectFit="fill"
-                        draggable={false}
-                      />
-                    </div>
-                    {postLoading ? (
-                      <div className="relative w-4 h-4 animate-spin flex">
+                    <Image
+                      layout="fill"
+                      objectFit="fill"
+                      className="rounded-full"
+                      draggable={false}
+                      src={`${INFURA_GATEWAY}QmfZcagRwUehVHB9DixzVBeWmWUcq7L8FA9v8UQHEKb2po`}
+                    />
+                  </div>
+                  <div className="relative w-fit h-fit flex gap-1.5 flex-row">
+                    <div
+                      className={`relative px-3 py-1 flex items-center justify-center text-black w-28 h-8 cursor-pointer active:scale-95`}
+                      onClick={() => !saveSessionLoading && handleSaveSession()}
+                    >
+                      <div className="absolute top-0 left-0 flex w-28 h-8">
                         <Image
+                          src={`${INFURA_GATEWAY}QmRU57vbmZm7EbKrJksFD6SfyLkZ2qUwfZHqXzy8XJvZAH`}
                           layout="fill"
-                          objectFit="cover"
+                          objectFit="fill"
                           draggable={false}
-                          src={`${INFURA_GATEWAY}QmNcoHPaFjhDciiHjiMNpfTbzwnJwKEZHhNfziFeQrqTkX`}
                         />
                       </div>
-                    ) : (
-                      <div className="relative flex w-fit h-fit font-digi">
-                        Post Live
+                      {saveSessionLoading ? (
+                        <div className="relative w-4 h-4 animate-spin flex">
+                          <Image
+                            layout="fill"
+                            objectFit="cover"
+                            draggable={false}
+                            src={`${INFURA_GATEWAY}QmNcoHPaFjhDciiHjiMNpfTbzwnJwKEZHhNfziFeQrqTkX`}
+                          />
+                        </div>
+                      ) : (
+                        <div className="relative flex w-fit h-fit font-digi">
+                          Save Session
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      className={`relative px-3 py-1 flex items-center justify-center text-black w-28 h-8 cursor-pointer active:scale-95`}
+                      onClick={() => !postLoading && handlePost()}
+                    >
+                      <div className="absolute top-0 left-0 flex w-28 h-8">
+                        <Image
+                          src={`${INFURA_GATEWAY}QmRU57vbmZm7EbKrJksFD6SfyLkZ2qUwfZHqXzy8XJvZAH`}
+                          layout="fill"
+                          objectFit="fill"
+                          draggable={false}
+                        />
                       </div>
-                    )}
+                      {postLoading ? (
+                        <div className="relative w-4 h-4 animate-spin flex">
+                          <Image
+                            layout="fill"
+                            objectFit="cover"
+                            draggable={false}
+                            src={`${INFURA_GATEWAY}QmNcoHPaFjhDciiHjiMNpfTbzwnJwKEZHhNfziFeQrqTkX`}
+                          />
+                        </div>
+                      ) : (
+                        <div className="relative flex w-fit h-fit font-digi">
+                          Post Live
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -277,6 +343,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
     default:
       return (
         <Feed
+          gifOpen={gifOpen}
           setGifOpen={setGifOpen}
           setScreen={setScreen}
           client={sessionClient || lensClient}

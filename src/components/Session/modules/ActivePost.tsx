@@ -21,7 +21,7 @@ export const ActivePost: FunctionComponent<ActivePostProps> = ({
           <div className="relative w-full h-full flex items-center justify-center">
             <div
               className="relative w-fit h-fit flex text-sm text-black text-center cursor-pointer"
-              onClick={() => setScreen(SCREENS[0])}
+              onClick={() => setScreen?.(SCREENS[0])}
             >
               Start a session? Choose a Post on the lines.
             </div>

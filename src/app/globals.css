@@ -19,6 +19,7 @@
 html {
   font-family: "Perfect";
   background: url("https://thedial.infura-ipfs.io/ipfs/QmaZMj3P6ai49RNrsARwGGAuVaBaZ27mVbQbqzLLGC9p22");
+  background-color: #EDC6FF;
 }
 
 .ProseMirror:focus {
@@ -26,6 +27,8 @@ html {
 }
 
 .ProseMirror {
+  position: relative;
+  display: flex;
   width: 22rem;
   height: 22rem;
   overflow: scroll;
@@ -161,4 +164,8 @@ html {
   background: #fff; 
   cursor: pointer;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.infinite-scroll-component__outerdiv {
+  width: 100%;
 }
