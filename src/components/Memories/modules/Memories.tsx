@@ -14,6 +14,7 @@ const Memories: FunctionComponent<MemoriesProps> = ({
   setScreen,
   setCurrentSession,
   currentSession,
+  sessionClient
 }): JSX.Element => {
   const { address } = useAccount();
   const publicClient = createPublicClient({
@@ -28,7 +29,7 @@ const Memories: FunctionComponent<MemoriesProps> = ({
     paginated,
     handleDeleteMemory,
     deleteMemoryLoading,
-  } = useMemories(address, publicClient);
+  } = useMemories(address, publicClient, sessionClient!);
   return (
     <div className="relative w-full h-fit sm:h-full flex items-start justify-start overflow-y-scroll pb-10 rounded-md">
       {!memoriesLoading && memories?.length < 1 ? (

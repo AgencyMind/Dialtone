@@ -46,17 +46,6 @@ const useSession = (
         transport: custom((window as any).ethereum),
       });
 
-      const response = await fetch("/api/ipfs", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({}),
-      });
-
-      const responseJSON = await response.json();
-      const sessionData = "ipfs://" + responseJSON?.cid;
-
       const litClient = new LitJsSdk.LitNodeClientNodeJs({
         alertWhenUnauthorized: false,
         litNetwork: LIT_NETWORK.DatilDev,
@@ -81,7 +70,11 @@ const useSession = (
       const encoder = new TextEncoder();
       const { ciphertext, dataToEncryptHash } = await litClient.encrypt({
         accessControlConditions,
-        dataToEncrypt: encoder.encode(sessionData),
+        dataToEncrypt: encoder.encode(
+          JSON.stringify({
+            postId: currentSession?.post?.id,
+          })
+        ),
       });
 
       const ipfsRes = await fetch("/api/ipfs", {

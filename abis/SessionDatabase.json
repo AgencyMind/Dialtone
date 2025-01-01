@@ -20,6 +20,15 @@
   },
   {
     "type": "function",
+    "name": "getOwnerEncryptedKeys",
+    "inputs": [
+      { "name": "owner", "type": "address", "internalType": "address" }
+    ],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getSessionCounter",
     "inputs": [],
     "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
@@ -45,6 +54,15 @@
   },
   {
     "type": "function",
+    "name": "ownerSetKeys",
+    "inputs": [
+      { "name": "encryptedKeys", "type": "string", "internalType": "string" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "updateSession",
     "inputs": [
       { "name": "sessionId", "type": "uint256", "internalType": "uint256" },
@@ -52,6 +70,25 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "OwnerKeySet",
+    "inputs": [
+      {
+        "name": "encryptedKeys",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "owner",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
   },
   {
     "type": "event",

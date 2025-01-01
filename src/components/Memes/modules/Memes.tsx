@@ -2,9 +2,22 @@ import { FunctionComponent, JSX } from "react";
 import useMemes from "../hooks/useMemes";
 import Image from "next/legacy/image";
 import { INFURA_GATEWAY } from "@/lib/constants";
-import { MemeData, TokenData } from "../types/memes.types";
+import { MemeData, MemesProps, TokenData } from "../types/memes.types";
+import { createPublicClient, http } from "viem";
+import { chains } from "@lens-network/sdk/viem";
 
-const Memes: FunctionComponent = (): JSX.Element => {
+const Memes: FunctionComponent<MemesProps> = ({
+  setIndexer,
+  setNotification,
+  setSignless,
+  storageClient,
+  sessionClient,
+  address,
+}): JSX.Element => {
+  const publicClient = createPublicClient({
+    chain: chains.testnet,
+    transport: http("https://rpc.testnet.lens.dev"),
+  });
   const {
     memeData,
     memesLoading,
@@ -22,7 +35,15 @@ const Memes: FunctionComponent = (): JSX.Element => {
     handleCreateMeme,
     newMeme,
     setNewMeme,
-  } = useMemes();
+  } = useMemes(
+    publicClient,
+    address,
+    storageClient,
+    setSignless,
+    setNotification,
+    setIndexer,
+    sessionClient
+  );
   return (
     <div className="relative w-full h-full pb-6">
       <div className="relative w-full h-full bg-white rounded-md flex flex-row gap-3 items-start justify-between p-4 border-2 border-sea">

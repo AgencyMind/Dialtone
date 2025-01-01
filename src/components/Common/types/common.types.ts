@@ -37,7 +37,6 @@ export type ScreenSwitchProps = {
   ) => void;
   setImageView: (e: SetStateAction<string | undefined>) => void;
   lensClient: PublicClient | undefined;
-  sessionClient: SessionClient | undefined;
   setScreen: (e: SetStateAction<Screen>) => void;
   setCurrentSession: (e: SetStateAction<CurrentSession>) => void;
   currentSession: CurrentSession;

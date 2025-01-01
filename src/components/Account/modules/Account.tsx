@@ -3,9 +3,17 @@ import { FunctionComponent, JSX, useContext } from "react";
 import useUpdateAccount from "../hooks/useUpdateAccount";
 import { AppContext } from "@/app/providers";
 import { INFURA_GATEWAY } from "@/lib/constants";
+import { createPublicClient, http } from "viem";
+import { chains } from "@lens-network/sdk/viem";
+import { useAccount } from "wagmi";
 
 const Account: FunctionComponent = (): JSX.Element => {
   const context = useContext(AppContext);
+  const publicClient = createPublicClient({
+    chain: chains.testnet,
+    transport: http("https://rpc.testnet.lens.dev"),
+  });
+  const { address } = useAccount();
   const {
     updatedAccount,
     setUpdatedAccount,
@@ -18,7 +26,8 @@ const Account: FunctionComponent = (): JSX.Element => {
     context?.storageClient!,
     context?.setLensAccount!,
     context?.aiKey!,
-    context?.setAiKey!
+    publicClient,
+    address
   );
   return (
     <div className="relative w-full h-full flex items-start justify-start flex-col gap-4 pb-10">

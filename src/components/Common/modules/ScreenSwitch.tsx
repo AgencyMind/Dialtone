@@ -23,7 +23,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
   screen,
   setImageView,
   lensClient,
-  sessionClient,
+
   setScreen,
   setCurrentSession,
   currentSession,
@@ -58,7 +58,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
     handleSaveSession,
     agentChat,
   } = useSession(
-    sessionClient!,
+    lensAccount?.sessionClient!,
     storageClient,
     setSignless,
     setNotification,
@@ -75,7 +75,16 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
       return <Account />;
 
     case "Memes":
-      return <Memes />;
+      return (
+        <Memes
+          storageClient={storageClient}
+          sessionClient={lensAccount?.sessionClient!}
+          setSignless={setSignless}
+          setIndexer={setIndexer}
+          setNotification={setNotification}
+          address={address}
+        />
+      );
 
     case "Memories":
       return (
@@ -83,6 +92,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
           setScreen={setScreen}
           setCurrentSession={setCurrentSession}
           currentSession={currentSession}
+          sessionClient={lensAccount?.sessionClient}
         />
       );
 
@@ -94,7 +104,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
           setCurrentSession={setCurrentSession}
           currentSession={currentSession}
           storageClient={storageClient}
-          sessionClient={sessionClient}
+          sessionClient={lensAccount?.sessionClient}
           lensClient={lensClient}
           setSignless={setSignless}
           setIndexer={setIndexer}
@@ -349,7 +359,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
           gifOpen={gifOpen}
           setGifOpen={setGifOpen}
           setScreen={setScreen}
-          client={sessionClient || lensClient}
+          client={lensAccount?.sessionClient || lensClient}
           setImageView={setImageView}
           currentSession={currentSession}
           setCurrentSession={setCurrentSession}
@@ -357,7 +367,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
           setNotification={setNotification}
           setSignless={setSignless}
           storageClient={storageClient}
-          sessionClient={sessionClient!}
+          sessionClient={lensAccount?.sessionClient!}
         />
       );
   }

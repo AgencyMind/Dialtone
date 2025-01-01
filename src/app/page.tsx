@@ -9,9 +9,15 @@ import { useRouter } from "next/navigation";
 import { useContext } from "react";
 import { useAccount } from "wagmi";
 import { AppContext } from "./providers";
+import { createPublicClient, http } from "viem";
+import { chains } from "@lens-network/sdk/viem";
 
 export default function Home() {
   const router = useRouter();
+  const publicClient = createPublicClient({
+    chain: chains.testnet,
+    transport: http("https://rpc.testnet.lens.dev"),
+  });
   const { address, isConnected } = useAccount();
   const context = useContext(AppContext);
   const { openConnectModal } = useConnectModal();
@@ -34,7 +40,8 @@ export default function Home() {
     context?.setIndexer!,
     context?.setCreateAccount!,
     context?.aiKey!,
-    context?.setAiKey!
+    context?.setAiKey!,
+    publicClient
   );
 
   return (
@@ -230,7 +237,6 @@ export default function Home() {
             setGifOpen={context?.setGifOpen!}
             setImageView={context?.setImageView!}
             lensClient={context?.lensClient!}
-            sessionClient={context?.lensAccount?.sessionClient}
             setScreen={setScreen}
             currentSession={context?.currentSession!}
             setCurrentSession={context?.setCurrentSession!}
