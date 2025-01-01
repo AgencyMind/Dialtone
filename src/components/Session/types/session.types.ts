@@ -1,5 +1,6 @@
 import { CurrentSession, Screen } from "@/components/Common/types/common.types";
 import { Post } from "@lens-protocol/client";
+import { ChatCompletion } from "openai/resources/index.mjs";
 import { SetStateAction } from "react";
 
 export type SessionSwitchProps = {
@@ -26,5 +27,5 @@ export type ChatProps = {
 };
 
 export type AIResponseProps = {
-  conversation: [];
+  agentChat: ChatCompletion.Choice[]
 };

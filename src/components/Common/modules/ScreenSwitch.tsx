@@ -36,7 +36,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
   expand,
   lensAccount,
   aiKey,
-  gifOpen
+  gifOpen,
 }): JSX.Element => {
   const { address } = useAccount();
   const publicClient = createPublicClient({
@@ -56,6 +56,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
     textContent,
     saveSessionLoading,
     handleSaveSession,
+    agentChat,
   } = useSession(
     sessionClient!,
     storageClient,
@@ -64,7 +65,9 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
     setIndexer,
     publicClient,
     address,
-    currentSession
+    currentSession,
+    screen,
+    aiKey
   );
 
   switch (screen?.title) {
@@ -112,7 +115,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
               }`}
             >
               <ActivePost post={currentSession?.post} setScreen={setScreen} />
-              <AIResponse conversation={[]} />
+              <AIResponse agentChat={agentChat} />
               <Chat
                 sendToAgent={sendToAgent}
                 content={content}

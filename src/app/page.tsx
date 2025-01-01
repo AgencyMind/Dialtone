@@ -221,7 +221,7 @@ export default function Home() {
           }`}
         >
           <ScreenSwitch
-            gifOpen={context?.gifOpen}
+            gifOpen={context?.gifOpen!}
             screen={screen}
             aiKey={context?.aiKey}
             expand={expand}

@@ -3,6 +3,8 @@ import { ImageMetadata, VideoMetadata } from "@lens-protocol/client";
 import Image from "next/legacy/image";
 import { INFURA_GATEWAY } from "@/lib/constants";
 import { MetadataSwitchProps } from "../types/feed.types";
+import * as Player from "@livepeer/react/player";
+import { getSrc } from "@livepeer/react/external";
 
 const MetadataSwitch: FunctionComponent<MetadataSwitchProps> = ({
   metadata,
@@ -19,21 +21,25 @@ const MetadataSwitch: FunctionComponent<MetadataSwitchProps> = ({
             )?.[1]
           }` && (
             <div className="relative w-full h-fit flex items-start justify-start">
-              <video
-                className={`object-cover relative w-full ${
-                  setImageView ? "h-[20rem]" : "h-20"
-                }  flex items-start justify-start rounded-md`}
-                autoPlay={false}
-                controls
-              >
-                <source
-                  src={`${INFURA_GATEWAY}${
+              <Player.Root
+                src={getSrc(
+                  `${INFURA_GATEWAY}${
                     ((data as VideoMetadata)?.video?.item as string)?.split(
                       "ipfs://"
                     )?.[1]
-                  }`}
-                />
-              </video>
+                  }`
+                )}
+                autoPlay
+              >
+                <Player.Container>
+                  <Player.Video
+                    className={`object-cover relative object-cover w-full ${
+                      setImageView ? "h-[20rem]" : "h-20"
+                    }  flex items-start justify-start rounded-md`}
+                    controls
+                  />
+                </Player.Container>
+              </Player.Root>
             </div>
           )}
           <div

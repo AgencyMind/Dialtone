@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-// import FormData from 'form-data';
 
 const projectId = process.env.INFURA_PROJECT_ID;
 const projectSecret = process.env.INFURA_SECRET_KEY;

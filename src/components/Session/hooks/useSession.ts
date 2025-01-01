@@ -1,14 +1,17 @@
 import { EditorType, Social } from "@/components/Feed/types/feed.types";
-import { SetStateAction, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 import createPost from "../../../../graphql/lens/mutations/createPost";
 import { MainContentFocus, SessionClient } from "@lens-protocol/client";
 import { StorageClient } from "@lens-protocol/storage-node-client";
 import { v4 as uuidV4 } from "uuid";
 import { createWalletClient, custom, PublicClient } from "viem";
 import { chains } from "@lens-network/sdk/viem";
-import { SESSION_DATA_CONTRACT } from "@/lib/constants";
+import { SCREENS, SESSION_DATA_CONTRACT } from "@/lib/constants";
 import SessionDatabaseAbi from "@abis/SessionDatabase.json";
-import { CurrentSession } from "@/components/Common/types/common.types";
+import { CurrentSession, Screen } from "@/components/Common/types/common.types";
+import OpenAI from "openai";
+import * as LitJsSdk from "@lit-protocol/lit-node-client";
+import { LIT_NETWORK } from "@lit-protocol/constants";
 
 const useSession = (
   sessionClient: SessionClient,
@@ -18,11 +21,17 @@ const useSession = (
   setIndexer: (e: SetStateAction<string | undefined>) => void,
   publicClient: PublicClient,
   address: `0x${string}` | undefined,
-  currentSession: CurrentSession
+  currentSession: CurrentSession,
+  screen: Screen,
+  aiKey: string | undefined
 ) => {
+  const [openAI, setOpenAI] = useState<OpenAI | undefined>();
   const [socialPost, setSocialPost] = useState<Social[]>([Social.Lens]);
   const [agentLoading, setAgentLoading] = useState<boolean>(false);
   const [content, setContent] = useState<string>("");
+  const [agentChat, setAgentChat] = useState<
+    OpenAI.Chat.Completions.ChatCompletion.Choice[]
+  >([]);
   const [postLoading, setPostLoading] = useState<boolean>(false);
   const [textContent, setTextContent] = useState<string>(
     `<p2>Start creating! ....</p2>`
@@ -45,17 +54,52 @@ const useSession = (
         body: JSON.stringify({}),
       });
 
-      let responseJSON = await response.json();
+      const responseJSON = await response.json();
+      const sessionData = "ipfs://" + responseJSON?.cid;
 
-      // encrypt session data
-      let encryptedData = "ipfs://" + responseJSON?.cid;
+      const litClient = new LitJsSdk.LitNodeClientNodeJs({
+        alertWhenUnauthorized: false,
+        litNetwork: LIT_NETWORK.DatilDev,
+        debug: true,
+      });
+      await litClient.connect();
+
+      const accessControlConditions = [
+        {
+          contractAddress: "",
+          standardContractType: "",
+          chain: "mumbai",
+          method: "",
+          parameters: [":userAddress"],
+          returnValueTest: {
+            comparator: "=",
+            value: address?.toLowerCase(),
+          },
+        },
+      ];
+
+      const encoder = new TextEncoder();
+      const { ciphertext, dataToEncryptHash } = await litClient.encrypt({
+        accessControlConditions,
+        dataToEncrypt: encoder.encode(sessionData),
+      });
+
+      const ipfsRes = await fetch("/api/ipfs", {
+        method: "POST",
+        body: JSON.stringify({
+          ciphertext,
+          dataToEncryptHash,
+          accessControlConditions,
+        }),
+      });
+      const json = await ipfsRes.json();
 
       const { request } = await publicClient.simulateContract({
         address: SESSION_DATA_CONTRACT,
         abi: SessionDatabaseAbi,
         functionName: "addNewSession",
         chain: chains.testnet,
-        args: [encryptedData],
+        args: ["ipfs://" + json?.cid],
         account: address,
       });
 
@@ -70,8 +114,29 @@ const useSession = (
   };
 
   const sendToAgent = async () => {
+    if (!aiKey) return;
     setAgentLoading(true);
     try {
+      let openaiclient = openAI;
+      if (!openaiclient) {
+        openaiclient = new OpenAI({
+          apiKey: aiKey,
+        });
+        setOpenAI(openaiclient);
+      }
+
+      const completion = await openaiclient.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          {
+            role: "user",
+            content: "Write a haiku about recursion in programming.",
+          },
+        ],
+      });
+
+      setAgentChat(completion.choices);
     } catch (err: any) {
       console.error(err.message);
     }
@@ -171,6 +236,12 @@ const useSession = (
     setPostLoading(false);
   };
 
+  useEffect(() => {
+    if (screen == SCREENS[1] && currentSession?.post && aiKey) {
+      sendToAgent();
+    }
+  }, [screen, currentSession?.post, aiKey]);
+
   return {
     socialPost,
     setSocialPost,
@@ -184,6 +255,7 @@ const useSession = (
     textContent,
     saveSessionLoading,
     handleSaveSession,
+    agentChat,
   };
 };
 

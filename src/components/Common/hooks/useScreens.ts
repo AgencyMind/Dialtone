@@ -7,7 +7,16 @@ import {
   fetchAccountsAvailable,
   revokeAuthentication,
 } from "@lens-protocol/client/actions";
-import { SCREENS, STORAGE_NODE } from "@/lib/constants";
+import {
+  INFURA_GATEWAY,
+  SCREENS,
+  SESSION_DATA_CONTRACT,
+  STORAGE_NODE,
+} from "@/lib/constants";
+import SessionDatabaseAbi from "@abis/SessionDatabase.json";
+import { PublicClient as PublicClientViem } from "viem";
+import * as LitJsSdk from "@lit-protocol/lit-node-client";
+import { LIT_NETWORK } from "@lit-protocol/constants";
 
 const useScreens = (
   address: `0x${string}` | undefined,
@@ -17,7 +26,8 @@ const useScreens = (
   setIndexer: (e: SetStateAction<string | undefined>) => void,
   setCreateAccount: (e: SetStateAction<boolean>) => void,
   aiKey: string | undefined,
-  setAikey: (e: SetStateAction<string | undefined>) => void
+  setAikey: (e: SetStateAction<string | undefined>) => void,
+  publicClient: PublicClientViem
 ) => {
   const [screen, setScreen] = useState<Screen>(SCREENS[0]);
   const [accountOpen, setAccountOpen] = useState<boolean>(false);
@@ -26,6 +36,41 @@ const useScreens = (
 
   const handleGetAIKey = async () => {
     try {
+      const data = await publicClient.readContract({
+        address: SESSION_DATA_CONTRACT,
+        abi: SessionDatabaseAbi,
+        functionName: "getOwnerEncryptedKeys",
+        args: [address as `0x${string}`],
+        account: address,
+      });
+
+      if (data && typeof data == "string") {
+        const file = await fetch(
+          `${INFURA_GATEWAY}/${data?.split("ipfs://")?.[1]}`
+        );
+
+        if (file) {
+          const json = await file.json();
+
+          const litClient = new LitJsSdk.LitNodeClientNodeJs({
+            alertWhenUnauthorized: false,
+            litNetwork: LIT_NETWORK.DatilDev,
+            debug: true,
+          });
+          await litClient.connect();
+
+          const decrypted = await litClient.decrypt({
+            dataToEncryptHash: json.dataToEncryptHash,
+            accessControlConditions: json.accessControlConditions,
+            ciphertext: json.ciphertext,
+            chain: "ethereum",
+          });
+
+          const decoder = new TextDecoder();
+
+          setAikey(decoder.decode(decrypted.decryptedData));
+        }
+      }
     } catch (err: any) {
       console.error(err.message);
     }
@@ -200,8 +245,10 @@ const useScreens = (
   }, [address]);
 
   useEffect(() => {
-    handleGetAIKey();
-  }, []);
+    if (!aiKey && address) {
+      handleGetAIKey();
+    }
+  }, [address]);
 
   return {
     screen,

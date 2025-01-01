@@ -4,7 +4,7 @@ import { FunctionComponent, JSX } from "react";
 import { AIResponseProps } from "../types/session.types";
 
 export const AIResponse: FunctionComponent<AIResponseProps> = ({
-  conversation,
+  agentChat,
 }): JSX.Element => {
   return (
     <div className="font-digi text-sm text-electric relative w-full h-full flex flex-col items-center justify-start border border-white rounded-lg bg-black/70 gap-6 p-1.5">
@@ -25,7 +25,15 @@ export const AIResponse: FunctionComponent<AIResponseProps> = ({
         </div>
         <div className="relative w-fit h-fit flex">***</div>
       </div>
-      <div className="relative w-full h-full flex items-start justify-start"></div>
+      <div className="relative w-full h-full flex items-start justify-start">
+        {agentChat?.map((item, key) => {
+          return (
+            <div className="realtive w-fit h-fit text-left text-xs" key={key}>
+              {item.message.content}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

@@ -2,6 +2,7 @@
 
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Livepeer } from "livepeer";
 import { WagmiProvider, http } from "wagmi";
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { createContext, SetStateAction, useEffect, useState } from "react";
@@ -53,6 +54,7 @@ export const AppContext = createContext<
       setIndexer: (e: SetStateAction<string | undefined>) => void;
       setCurrentSession: (e: SetStateAction<CurrentSession>) => void;
       currentSession: CurrentSession;
+      livepeer: Livepeer | undefined;
     }
   | undefined
 >(undefined);
@@ -60,6 +62,7 @@ export const AppContext = createContext<
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [imageView, setImageView] = useState<string | undefined>();
   const [lensAccount, setLensAccount] = useState<LensAccount | undefined>();
+  const [livepeer, setLivepeer] = useState<Livepeer | undefined>();
   const [aiKey, setAiKey] = useState<string | undefined>("");
   const [lensClient, setLensClient] = useState<PublicClient | undefined>();
   const [indexer, setIndexer] = useState<string | undefined>();
@@ -87,6 +90,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         PublicClient.create({
           environment: testnet,
           storage: window.localStorage,
+        })
+      );
+    }
+
+    if (!livepeer) {
+      setLivepeer(
+        new Livepeer({
+          apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_KEY!,
         })
       );
     }
@@ -118,6 +129,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               setSignless,
               aiKey,
               setAiKey,
+              livepeer,
             }}
           >
             {children}

@@ -1,18 +1,24 @@
 import { LensAccount } from "@/components/Common/types/common.types";
-import { STORAGE_NODE } from "@/lib/constants";
+import { SESSION_DATA_CONTRACT, STORAGE_NODE } from "@/lib/constants";
 import { fetchAccount } from "@lens-protocol/client/actions";
 import { StorageClient } from "@lens-protocol/storage-node-client";
 import { SetStateAction, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import updateAccount from "../../../../graphql/lens/mutations/updateAccount";
 import pollResult from "@/lib/helpers/pollResult";
+import { createWalletClient, custom, PublicClient } from "viem";
+import { chains } from "@lens-network/sdk/viem";
+import SessionDatabaseAbi from "@abis/SessionDatabase.json";
+import * as LitJsSdk from "@lit-protocol/lit-node-client";
+import { LIT_NETWORK } from "@lit-protocol/constants";
 
 const useUpdateAccount = (
   lensAccount: LensAccount | undefined,
   storageClient: StorageClient,
   setLensAccount: (e: SetStateAction<LensAccount | undefined>) => void,
   aiKey: string | undefined,
-  setAiKey: (e: SetStateAction<string | undefined>) => void
+  publicClient: PublicClient,
+  address: `0x${string}` | undefined
 ) => {
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
   const [aiLoading, setAiLoading] = useState<boolean>(false);
@@ -27,8 +33,64 @@ const useUpdateAccount = (
   });
 
   const handleSetAIKey = async () => {
+    if (!aiKey || !address) return;
     setAiLoading(true);
     try {
+      const litClient = new LitJsSdk.LitNodeClientNodeJs({
+        alertWhenUnauthorized: false,
+        litNetwork: LIT_NETWORK.DatilDev,
+        debug: true,
+      });
+      await litClient.connect();
+
+      const accessControlConditions = [
+        {
+          contractAddress: "",
+          standardContractType: "",
+          chain: "mumbai",
+          method: "",
+          parameters: [":userAddress"],
+          returnValueTest: {
+            comparator: "=",
+            value: address?.toLowerCase(),
+          },
+        },
+      ];
+
+      const encoder = new TextEncoder();
+      const { ciphertext, dataToEncryptHash } = await litClient.encrypt({
+        accessControlConditions,
+        dataToEncrypt: encoder.encode(aiKey),
+      });
+
+      const ipfsRes = await fetch("/api/ipfs", {
+        method: "POST",
+        body: JSON.stringify({
+          ciphertext,
+          dataToEncryptHash,
+          accessControlConditions,
+        }),
+      });
+      const json = await ipfsRes.json();
+
+      const clientWallet = createWalletClient({
+        chain: chains.testnet,
+        transport: custom((window as any).ethereum),
+      });
+
+      const { request } = await publicClient.simulateContract({
+        address: SESSION_DATA_CONTRACT,
+        abi: SessionDatabaseAbi,
+        functionName: "ownerSetKeys",
+        chain: chains.testnet,
+        args: ["ipfs://" + json?.cid],
+        account: address,
+      });
+
+      const res = await clientWallet.writeContract(request);
+      await publicClient.waitForTransactionReceipt({
+        hash: res,
+      });
     } catch (err: any) {
       console.error(err.message);
     }
