@@ -20,7 +20,7 @@ const AccountPost: FunctionComponent<AccountPostProps> = ({
             }}
             value={postContent}
             onChange={(e) => setPostContent(e.target.value)}
-            className="relative w-full h-full flex p-1 rounded-lg border border-vil bg-dBlue p-6 h-32 overflow-y-scroll text-sun text-sm"
+            className="relative w-full h-full flex p-1 rounded-lg border border-viol bg-dBlue p-6 h-32 overflow-y-scroll text-sun text-sm"
           />
         </div>
         <div className="relative flex w-full justify-end h-fit">

@@ -48,6 +48,7 @@ export type ReactionsBarProps = {
   setSignless: (e: SetStateAction<boolean>) => void;
   setIndexer: (e: SetStateAction<string | undefined>) => void;
   setNotification: (e: SetStateAction<string | undefined>) => void;
+  setFeed: (e: SetStateAction<Post[]>) => void;
 };
 
 export enum EditorType {

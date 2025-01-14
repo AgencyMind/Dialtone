@@ -4,15 +4,14 @@ export const INFURA_GATEWAY: string = "https://thedial.infura-ipfs.io/ipfs/";
 export const IPFS_REGEX: RegExp = /\b(Qm[1-9A-Za-z]{44}|ba[A-Za-z2-7]{57})\b/;
 export const STORAGE_NODE: string = "https://storage-api.testnet.lens.dev";
 
-export const FILTERS: string[] = [
+
+export const COMFY_WORKFLOWS: string[] = [
+  "Depth",
   "BOS Music Video 1",
   "BOS Music Video 2",
   "EKKO",
   "Powder",
   "Generic Anime",
-  "3D Anime Mix",
-  "B&W Sketch",
-  "Audio To Text",
 ];
 
 export const SCREENS: Screen[] = [
@@ -50,5 +49,5 @@ export const SCREENS: Screen[] = [
 
 export const FEED_TYPES: string[] = ["for you", "video", "image", "text"];
 
-export const SESSION_DATA_CONTRACT: `0x${string}` = "0x012902519C28FB6a473650d01329981284C866E4";
-export const MEME_DATA_CONTRACT: `0x${string}` = "0x5d00671DCb428279320b9b37F8615488A0f74c9d";
+export const SESSION_DATA_CONTRACT: `0x${string}` = "0xDb61Db77c257c986412a784B0BF0a8A84D712e77";
+export const MEME_DATA_CONTRACT: `0x${string}` = "0xa9af59DcDDFac01D3B51CC80982fe13EcDb0E0d6";

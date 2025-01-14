@@ -18,6 +18,7 @@ const ReactionsBar: FunctionComponent<ReactionsBarProps> = ({
   setSignless,
   setIndexer,
   setNotification,
+  setFeed
 }): JSX.Element => {
   const {
     postLoading,
@@ -36,9 +37,10 @@ const ReactionsBar: FunctionComponent<ReactionsBarProps> = ({
     setSignless,
     setIndexer,
     setNotification,
-    post?.id,
-    post?.operations?.hasUpvoted ? "DOWNVOTE" : "UPVOTE",
-    gifOpen
+    post,
+    setFeed,
+    gifOpen,
+    
   );
 
   return (
@@ -218,7 +220,7 @@ const ReactionsBar: FunctionComponent<ReactionsBarProps> = ({
                 image: "QmVt1gqUk9fKJ4tziHiSud1WTYgvCN6VaA9X2VonchuaBL",
                 title: "Retweet",
                 function: () => handleMirror(),
-                stats: (post as any)?.stats?.comments,
+                stats: post?.stats?.reposts,
                 loader: interactionsLoading?.mirror,
               },
               {
@@ -228,7 +230,7 @@ const ReactionsBar: FunctionComponent<ReactionsBarProps> = ({
                   setCommentQuote(
                     commentQuote == "Comment" ? undefined : "Comment"
                   ),
-                stats: (post as any)?.stats?.comments,
+                stats: post?.stats?.comments,
                 loader: false,
               },
               {
@@ -238,7 +240,7 @@ const ReactionsBar: FunctionComponent<ReactionsBarProps> = ({
                   setCommentQuote(
                     commentQuote == "Quote" ? undefined : "Quote"
                   ),
-                stats: (post as any)?.stats?.quotes,
+                stats: post?.stats?.quotes,
                 loader: false,
               },
               {
@@ -246,7 +248,7 @@ const ReactionsBar: FunctionComponent<ReactionsBarProps> = ({
                 svgFill: <GoHeartFill size={15} color="black" />,
                 title: "Like",
                 function: () => handleLike(),
-                stats: (post as any)?.stats?.upvotes,
+                stats: post?.stats?.reactions,
                 loader: interactionsLoading?.like,
               },
             ].map((item, key) => {
@@ -298,7 +300,7 @@ const ReactionsBar: FunctionComponent<ReactionsBarProps> = ({
               }}
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="relative w-full h-fit flex p-3 rounded-lg border border-vil bg-dBlue p-6 h-32 overflow-y-scroll text-sun text-sm"
+              className="relative w-full h-fit flex p-3 rounded-lg border border-viol bg-dBlue p-6 h-32 overflow-y-scroll text-sun text-sm"
             />
           </div>
           <div className="relative flex w-full justify-end h-fit">

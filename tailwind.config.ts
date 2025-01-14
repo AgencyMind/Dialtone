@@ -14,7 +14,7 @@ export default {
       },
       colors: {
         lemon: "#FFF500",
-        vil: "#EDC6FF",
+        viol: "#EDC6FF",
         light: "#3F80CD",
         dark: "#272E29",
         rose: "#FF002F",

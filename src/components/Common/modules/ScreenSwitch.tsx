@@ -23,7 +23,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
   screen,
   setImageView,
   lensClient,
-
+  setPostLive,
   setScreen,
   setCurrentSession,
   currentSession,
@@ -35,8 +35,10 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
   setExpand,
   expand,
   lensAccount,
-  aiKey,
+  aiDetails,
   gifOpen,
+  handleDecryptAiDetails,
+  decryptAiDetailsLoading
 }): JSX.Element => {
   const { address } = useAccount();
   const publicClient = createPublicClient({
@@ -50,24 +52,18 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
     sendToAgent,
     content,
     setContent,
-    postLoading,
-    handlePost,
-    setTextContent,
-    textContent,
     saveSessionLoading,
     handleSaveSession,
     agentChat,
+    aiChoice,
+    setAiChoice,
   } = useSession(
-    lensAccount?.sessionClient!,
-    storageClient,
-    setSignless,
     setNotification,
-    setIndexer,
     publicClient,
     address,
     currentSession,
     screen,
-    aiKey
+    aiDetails
   );
 
   switch (screen?.title) {
@@ -78,11 +74,13 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
       return (
         <Memes
           storageClient={storageClient}
-          sessionClient={lensAccount?.sessionClient!}
+          lensAccount={lensAccount}
           setSignless={setSignless}
           setIndexer={setIndexer}
           setNotification={setNotification}
           address={address}
+          lensClient={lensClient!}
+          setScreen={setScreen}
         />
       );
 
@@ -117,11 +115,11 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
 
     case "Sessions":
       return (
-        <div className="relative w-full h-full pb-6">
-          <div className="relative w-full h-full bg-white rounded-md flex flex-row gap-3 items-start justify-between p-4 border-2 border-sea">
+        <div className="relative w-full h-full pb-6 md:overflow-y-auto overflow-y-scroll">
+          <div className="relative w-full h-full bg-white rounded-md flex flex-col md:flex-row gap-3 items-start justify-between p-4 border-2 border-sea md:overflow-y-auto overflow-y-scroll">
             <div
               className={`relative h-full items-start justify-between flex flex-col gap-3 p-2 border border-sea bg-gris/50 rounded-md ${
-                !expand ? "w-80" : "w-[32rem]"
+                !expand ? "w-full md:w-80" : "w-full md:w-[32rem]"
               }`}
             >
               <ActivePost post={currentSession?.post} setScreen={setScreen} />
@@ -131,13 +129,17 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
                 content={content}
                 setContent={setContent}
                 agentLoading={agentLoading}
-                aiKey={aiKey}
-                setScreen={setScreen}
+                aiDetails={aiDetails}
+                aiChoice={aiChoice}
+                setAiChoice={setAiChoice}
+                setScreen={setScreen} 
+                handleDecryptAiDetails={handleDecryptAiDetails}
+                decryptAiDetailsLoading={decryptAiDetailsLoading}
               />
             </div>
             <div
               className={
-                "relative w-full h-full flex flex-col gap-3 items-start justify-between bg-gris/50 border border-sea rounded-md p-2"
+                "relative w-full h-full flex flex-col gap-3 items-start justify-between bg-gris/50 border border-sea rounded-md p-2  md:overflow-y-auto overflow-y-scroll"
               }
             >
               <div className="relative w-full h-fit flex flex-row justify-between items-center gap-2">
@@ -160,7 +162,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
                     return (
                       <div
                         key={key}
-                        className={`border border-vil w-6 h-6 cursor-pointer flex relative hover:opacity-70 rounded-full bg-vil ${
+                        className={`border border-viol w-6 h-6 cursor-pointer flex relative hover:opacity-70 rounded-full bg-viol ${
                           socialPost.includes(item.social) && "opacity-70"
                         }`}
                         onClick={() =>
@@ -270,11 +272,10 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
               </div>
               <div className="relative w-full h-full p-2 rounded-md bg-white flex items-start justify-between flex-col gap-3 overflow-y-scroll">
                 <SessionSwitch
+                  lensAccount={lensAccount}
                   currentSession={currentSession}
-                  setTextContent={setTextContent}
-                  postLoading={postLoading}
-                  textContent={textContent}
                   expand={expand}
+                  saveSessionLoading={saveSessionLoading}
                   setCurrentSession={setCurrentSession}
                 />
                 <div className="relative flex w-full justify-between gap-2 flex-row h-fit">
@@ -320,7 +321,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
                     </div>
                     <div
                       className={`relative px-3 py-1 flex items-center justify-center text-black w-28 h-8 cursor-pointer active:scale-95`}
-                      onClick={() => !postLoading && handlePost()}
+                      onClick={() => setPostLive(true)}
                     >
                       <div className="absolute top-0 left-0 flex w-28 h-8">
                         <Image
@@ -330,7 +331,7 @@ const ScreenSwitch: FunctionComponent<ScreenSwitchProps> = ({
                           draggable={false}
                         />
                       </div>
-                      {postLoading ? (
+                      {saveSessionLoading ? (
                         <div className="relative w-4 h-4 animate-spin flex">
                           <Image
                             layout="fill"

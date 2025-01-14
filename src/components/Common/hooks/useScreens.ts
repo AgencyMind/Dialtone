@@ -17,6 +17,7 @@ import SessionDatabaseAbi from "@abis/SessionDatabase.json";
 import { PublicClient as PublicClientViem } from "viem";
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import { LIT_NETWORK } from "@lit-protocol/constants";
+import { AccessControlParams } from "@livepeer/react";
 
 const useScreens = (
   address: `0x${string}` | undefined,
@@ -25,16 +26,50 @@ const useScreens = (
   setLensAccount: (e: SetStateAction<LensAccount | undefined>) => void,
   setIndexer: (e: SetStateAction<string | undefined>) => void,
   setCreateAccount: (e: SetStateAction<boolean>) => void,
-  aiKey: string | undefined,
-  setAikey: (e: SetStateAction<string | undefined>) => void,
+  aiDetails: {
+    data?: {
+      openAikey?: string;
+      instructionsOpenAi?: string;
+      modelOpenAi: string;
+      claudekey?: string;
+      instructionsClaude?: string;
+      modelClaude: string;
+    };
+    json?: {
+      dataToEncryptHash: string;
+      accessControlConditions: AccessControlParams[];
+      ciphertext: string;
+    };
+    decrypted: boolean;
+  },
+  setAiDetails: (
+    e: SetStateAction<{
+      data?: {
+        openAikey?: string;
+        instructionsOpenAi?: string;
+        modelOpenAi: string;
+        claudekey?: string;
+        instructionsClaude?: string;
+        modelClaude: string;
+      };
+      json?: {
+        dataToEncryptHash: string;
+        accessControlConditions: AccessControlParams[];
+        ciphertext: string;
+      };
+      decrypted: boolean;
+    }>
+  ) => void,
   publicClient: PublicClientViem
 ) => {
   const [screen, setScreen] = useState<Screen>(SCREENS[0]);
   const [accountOpen, setAccountOpen] = useState<boolean>(false);
   const [lensLoading, setLensLoading] = useState<boolean>(false);
   const [expand, setExpand] = useState<boolean>(false);
+  const [decryptAiDetailsLoading, setDecrypAiDetailsLoading] =
+    useState<boolean>(false);
 
-  const handleGetAIKey = async () => {
+  const handleGetAiDetails = async () => {
     try {
       const data = await publicClient.readContract({
         address: SESSION_DATA_CONTRACT,
@@ -46,34 +81,58 @@ const useScreens = (
 
       if (data && typeof data == "string") {
         const file = await fetch(
-          `${INFURA_GATEWAY}/${data?.split("ipfs://")?.[1]}`
+          `${INFURA_GATEWAY}${data?.split("ipfs://")?.[1]}`
         );
 
         if (file) {
           const json = await file.json();
 
-          const litClient = new LitJsSdk.LitNodeClientNodeJs({
-            alertWhenUnauthorized: false,
-            litNetwork: LIT_NETWORK.DatilDev,
-            debug: true,
+          setAiDetails({
+            ...aiDetails,
+            json,
+            decrypted: false,
           });
-          await litClient.connect();
-
-          const decrypted = await litClient.decrypt({
-            dataToEncryptHash: json.dataToEncryptHash,
-            accessControlConditions: json.accessControlConditions,
-            ciphertext: json.ciphertext,
-            chain: "ethereum",
-          });
-
-          const decoder = new TextDecoder();
-
-          setAikey(decoder.decode(decrypted.decryptedData));
         }
       }
     } catch (err: any) {
       console.error(err.message);
     }
+  };
+
+  const handleDecryptAiDetails = async () => {
+    setDecrypAiDetailsLoading(true);
+
+    try {
+      const litClient = new LitJsSdk.LitNodeClientNodeJs({
+        alertWhenUnauthorized: false,
+        litNetwork: LIT_NETWORK.DatilDev,
+        debug: true,
+      });
+      await litClient.connect();
+      let nonce = await litClient.getLatestBlockhash();
+      const authSig = await LitJsSdk.checkAndSignAuthMessage({
+        chain: "mumbai",
+        nonce,
+      });
+      const decrypted = await litClient.decrypt({
+        dataToEncryptHash: aiDetails?.json?.dataToEncryptHash!,
+        accessControlConditions: aiDetails?.json?.accessControlConditions!,
+        ciphertext: aiDetails?.json?.ciphertext!,
+        chain: "mumbai",
+        authSig,
+      });
+
+      const decoder = new TextDecoder();
+      const data = await JSON.parse(decoder.decode(decrypted.decryptedData));
+      setAiDetails({
+        ...aiDetails,
+        data: data,
+        decrypted: true,
+      });
+    } catch (err: any) {
+      console.error(err.message);
+    }
+    setDecrypAiDetailsLoading(false);
   };
 
   const login = async () => {
@@ -113,19 +172,21 @@ const useScreens = (
         const sessionClient = authenticated.value;
 
         let picture = "";
-        const cadena = await fetch(
-          `${STORAGE_NODE}/${
-            (
-              accounts as any
-            )?.value?.items?.[0]?.account?.metadata?.picture?.split(
-              "lens://"
-            )?.[1]
-          }`
-        );
+        if ((accounts as any)?.value?.items?.[0]?.account?.metadata?.picture) {
+          const cadena = await fetch(
+            `${STORAGE_NODE}/${
+              (
+                accounts as any
+              )?.value?.items?.[0]?.account?.metadata?.picture?.split(
+                "lens://"
+              )?.[1]
+            }`
+          );
 
-        if (cadena) {
-          const json = await cadena.json();
-          picture = json.item;
+          if (cadena) {
+            const json = await cadena.json();
+            picture = json.item;
+          }
         }
 
         setLensAccount?.({
@@ -224,6 +285,7 @@ const useScreens = (
 
         if (res) {
           setLensAccount?.(undefined);
+          window.localStorage.removeItem("lens.testnet.credentials");
         }
       }
     } catch (err: any) {
@@ -245,10 +307,10 @@ const useScreens = (
   }, [address]);
 
   useEffect(() => {
-    if (!aiKey && address) {
-      handleGetAIKey();
+    if (!aiDetails?.json && address) {
+      handleGetAiDetails();
     }
-  }, [address]);
+  }, [aiDetails, address]);
 
   return {
     screen,
@@ -260,6 +322,8 @@ const useScreens = (
     lensLoading,
     expand,
     setExpand,
+    handleDecryptAiDetails,
+    decryptAiDetailsLoading,
   };
 };
 

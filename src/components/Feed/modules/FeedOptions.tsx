@@ -12,7 +12,7 @@ const FeedOptions: FunctionComponent<FeedOptionsProps> = ({
   feedTypeOpen,
 }): JSX.Element => {
   return (
-    <div className="relative w-full tablet:w-3/5 h-fit flex flex-col galaxy:flex-row gap-4 items-center justify-center galaxy:justify-between px-4 py-1 rounded-md galaxy:rounded-full bg-white border border-vil ">
+    <div className="relative w-full tablet:w-3/5 h-fit flex flex-col galaxy:flex-row gap-4 items-center justify-center galaxy:justify-between px-4 py-1 rounded-md galaxy:rounded-full bg-white border border-viol ">
       <div className="relative w-full h-fit flex flex-row gap-1 items-center justify-center galaxy:items-start galaxy:justify-start">
         {[
           {
@@ -32,7 +32,7 @@ const FeedOptions: FunctionComponent<FeedOptionsProps> = ({
           return (
             <div
               key={key}
-              className={`border border-vil w-8 h-8 cursor-pointer flex relative hover:opacity-70 rounded-full ${
+              className={`border bg-viol border-viol w-8 h-8 cursor-pointer flex relative hover:opacity-70 rounded-full ${
                 socials.includes(item.social) && "opacity-70"
               }`}
               onClick={() =>
@@ -65,11 +65,11 @@ const FeedOptions: FunctionComponent<FeedOptionsProps> = ({
           feed:
         </div>
         <div className="relative w-full h-fit flex flex-row items-center justify-start gap-3">
-          <div className="relative rounded-md border border-light bg-dark flex whitespace-nowrap items-center justify-center text-left py-1 px-3 text-vil text-xs h-fit w-20">
+          <div className="relative rounded-md border border-light bg-dark flex whitespace-nowrap items-center justify-center text-left py-1 px-3 text-viol text-xs h-fit w-20">
             {feedType}
           </div>
           <div
-            className="relative text-vil hover:opacity-70 cursor-pointer w-6 h-6"
+            className="relative text-viol hover:opacity-70 cursor-pointer w-6 h-6"
             onClick={() => setFeedTypeOpen(!feedTypeOpen)}
           >
             <Image
@@ -85,7 +85,7 @@ const FeedOptions: FunctionComponent<FeedOptionsProps> = ({
                 return (
                   <div
                     key={key}
-                    className="relative flex w-full h-7 rounded-md bg-vil active:scale-95 cursor-pointer items-center justify-center text-center text-xs text-black hover:opacity-80 border border-black"
+                    className="relative flex w-full h-7 rounded-md bg-viol active:scale-95 cursor-pointer items-center justify-center text-center text-xs text-black hover:opacity-80 border border-black"
                     onClick={() => {
                       setFeedTypeOpen(false);
                       setFeedType(type);

@@ -32,6 +32,8 @@ export default function Home() {
     lensLoading,
     expand,
     setExpand,
+    handleDecryptAiDetails,
+    decryptAiDetailsLoading,
   } = useScreens(
     address,
     context?.lensClient!,
@@ -39,8 +41,8 @@ export default function Home() {
     context?.setLensAccount!,
     context?.setIndexer!,
     context?.setCreateAccount!,
-    context?.aiKey!,
-    context?.setAiKey!,
+    context?.aiDetails!,
+    context?.setAiDetails!,
     publicClient
   );
 
@@ -77,7 +79,11 @@ export default function Home() {
                       {context?.lensAccount?.account?.metadata?.picture && (
                         <Image
                           layout="fill"
-                          src={`${INFURA_GATEWAY}${context?.lensAccount?.account?.metadata?.picture}`}
+                          src={`${INFURA_GATEWAY}${
+                            context?.lensAccount?.account?.metadata?.picture?.split(
+                              "ipfs://"
+                            )?.[1]
+                          }`}
                           draggable={false}
                           className="rounded-full"
                           alt="pfp"
@@ -93,7 +99,7 @@ export default function Home() {
               <div className="relative w-full h-fit flex flex-col gap-2 font-digi">
                 {context?.lensAccount?.account && (
                   <div
-                    className="relative flex w-full h-10 rounded-md bg-vil active:scale-95 cursor-pointer items-center justify-center text-center text-sm text-black hover:opacity-80 border border-black"
+                    className="relative flex w-full h-10 rounded-md bg-viol active:scale-95 cursor-pointer items-center justify-center text-center text-sm text-black hover:opacity-80 border border-black"
                     onClick={() => {
                       setScreen(SCREENS[SCREENS.length - 1]);
                       setAccountOpen(false);
@@ -103,7 +109,7 @@ export default function Home() {
                   </div>
                 )}
                 <div
-                  className="relative flex w-full h-10 rounded-md bg-vil active:scale-95 cursor-pointer items-center justify-center text-center text-sm text-black hover:opacity-80 border border-black"
+                  className="relative flex w-full h-10 rounded-md bg-viol active:scale-95 cursor-pointer items-center justify-center text-center text-sm text-black hover:opacity-80 border border-black"
                   onClick={() =>
                     isConnected ? openAccountModal?.() : openConnectModal?.()
                   }
@@ -229,8 +235,11 @@ export default function Home() {
         >
           <ScreenSwitch
             gifOpen={context?.gifOpen!}
+            handleDecryptAiDetails={handleDecryptAiDetails}
+            decryptAiDetailsLoading={decryptAiDetailsLoading}
             screen={screen}
-            aiKey={context?.aiKey}
+            setPostLive={context?.setPostLive!}
+            aiDetails={context?.aiDetails!}
             expand={expand}
             lensAccount={context?.lensAccount}
             setExpand={setExpand}

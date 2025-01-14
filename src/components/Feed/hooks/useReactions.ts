@@ -1,7 +1,7 @@
 import { StorageClient } from "@lens-protocol/storage-node-client";
 import { SetStateAction, useState } from "react";
 import createPost from "../../../../graphql/lens/mutations/createPost";
-import { MainContentFocus, SessionClient } from "@lens-protocol/client";
+import { MainContentFocus, Post, SessionClient } from "@lens-protocol/client";
 import { v4 as uuidv4 } from "uuid";
 import createRepost from "../../../../graphql/lens/mutations/createRepost";
 import addReaction from "../../../../graphql/lens/mutations/addReaction";
@@ -12,8 +12,8 @@ const useReactions = (
   setSignless: (e: SetStateAction<boolean>) => void,
   setIndexer: (e: SetStateAction<string | undefined>) => void,
   setNotification: (e: SetStateAction<string | undefined>) => void,
-  id: string,
-  reaction: string,
+  post: Post,
+  setFeed: (e: SetStateAction<Post[]>) => void,
   gifOpen: { id: string; gif: string } | undefined
 ) => {
   const [content, setContent] = useState<string>("");
@@ -62,7 +62,7 @@ const useReactions = (
         {
           contentUri: uri,
           commentOn: {
-            post: id,
+            post: post?.id,
           },
         },
         sessionClient!
@@ -78,6 +78,33 @@ const useReactions = (
         setContent("");
         setCommentQuote(undefined);
         setIndexer?.("Comment Indexing");
+        setFeed((prev) => {
+          const newFeed = [...prev];
+
+          newFeed[newFeed?.findIndex((p) => p?.id == post?.id)] = {
+            ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)],
+            operations: {
+              ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]
+                ?.operations!,
+              hasCommented: {
+                ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]
+                  ?.operations?.hasCommented!,
+                onChain: true,
+                optimistic: true,
+              },
+            },
+            stats: {
+              ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]?.stats!,
+              comments:
+                Number(
+                  newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]?.stats
+                    ?.comments || 0
+                ) + 1,
+            },
+          };
+
+          return newFeed;
+        });
       } else {
         setNotification?.("Something went wrong :( Try again?");
       }
@@ -95,8 +122,8 @@ const useReactions = (
     try {
       const res = await addReaction(
         {
-          post: id,
-          reaction,
+          post: post?.id,
+          reaction: post?.operations?.hasUpvoted ? "DOWNVOTE" : "UPVOTE",
         },
         sessionClient!
       );
@@ -109,6 +136,30 @@ const useReactions = (
         setSignless?.(true);
       } else if ((res as any)?.success) {
         setIndexer?.("Reaction Success");
+        setFeed((prev) => {
+          const newFeed = [...prev];
+
+          newFeed[newFeed?.findIndex((p) => p?.id == post?.id)] = {
+            ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)],
+            operations: {
+              ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]
+                ?.operations!,
+              hasUpvoted:
+                newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]
+                  ?.operations?.hasUpvoted!,
+            },
+            stats: {
+              ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]?.stats!,
+              reactions:
+                Number(
+                  newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]?.stats
+                    ?.reactions || 0
+                ) + 1,
+            },
+          };
+
+          return newFeed;
+        });
       } else {
         setNotification?.("Something went wrong :( Try again?");
       }
@@ -129,7 +180,7 @@ const useReactions = (
     try {
       const res = await createRepost(
         {
-          post: id,
+          post: post?.id,
         },
         sessionClient!
       );
@@ -141,6 +192,33 @@ const useReactions = (
         setSignless?.(true);
       } else if ((res as any)?.hash) {
         setIndexer?.("Mirror Indexing");
+        setFeed((prev) => {
+          const newFeed = [...prev];
+
+          newFeed[newFeed?.findIndex((p) => p?.id == post?.id)] = {
+            ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)],
+            operations: {
+              ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]
+                ?.operations!,
+              hasReposted: {
+                ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]
+                  ?.operations?.hasReposted!,
+                onChain: true,
+                optimistic: true,
+              },
+            },
+            stats: {
+              ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]?.stats!,
+              reposts:
+                Number(
+                  newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]?.stats
+                    ?.reposts || 0
+                ) + 1,
+            },
+          };
+
+          return newFeed;
+        });
       } else {
         setNotification?.("Something went wrong :( Try again?");
       }
@@ -186,7 +264,7 @@ const useReactions = (
         {
           contentUri: uri,
           quoteOf: {
-            post: id,
+            post: post?.id,
           },
         },
         sessionClient!
@@ -202,6 +280,33 @@ const useReactions = (
         setContent("");
         setCommentQuote(undefined);
         setIndexer?.("Quote Indexing");
+        setFeed((prev) => {
+          const newFeed = [...prev];
+
+          newFeed[newFeed?.findIndex((p) => p?.id == post?.id)] = {
+            ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)],
+            operations: {
+              ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]
+                ?.operations!,
+              hasQuoted: {
+                ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]
+                  ?.operations?.hasQuoted!,
+                onChain: true,
+                optimistic: true,
+              },
+            },
+            stats: {
+              ...newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]?.stats!,
+              quotes:
+                Number(
+                  newFeed[newFeed?.findIndex((p) => p?.id == post?.id)]?.stats
+                    ?.quotes || 0
+                ) + 1,
+            },
+          };
+
+          return newFeed;
+        });
       } else {
         setNotification?.("Something went wrong :( Try again?");
       }

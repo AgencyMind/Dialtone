@@ -1,10 +1,15 @@
 import { FunctionComponent, JSX } from "react";
-import { ImageMetadata, VideoMetadata } from "@lens-protocol/client";
+import {
+  ImageMetadata,
+  TextOnlyMetadata,
+  VideoMetadata,
+} from "@lens-protocol/client";
 import Image from "next/legacy/image";
 import { INFURA_GATEWAY } from "@/lib/constants";
 import { MetadataSwitchProps } from "../types/feed.types";
 import * as Player from "@livepeer/react/player";
 import { getSrc } from "@livepeer/react/external";
+import descriptionRegex from "@/lib/helpers/descriptionRegex";
 
 const MetadataSwitch: FunctionComponent<MetadataSwitchProps> = ({
   metadata,
@@ -53,12 +58,15 @@ const MetadataSwitch: FunctionComponent<MetadataSwitchProps> = ({
               }`}
             >
               <div
-                className={`relative w-full h-fit flex rounded-lg border border-vil bg-dBlue overflow-y-scroll text-sun ${
+                className={`relative w-full h-fit flex rounded-lg border border-viol whitespace-noline bg-dBlue overflow-y-scroll text-sun ${
                   setImageView ? "max-h-44 p-6 text-sm" : "max-h-20 p-1 text-xs"
                 }`}
-              >
-                {(data as VideoMetadata)?.content as string}
-              </div>
+                dangerouslySetInnerHTML={{
+                  __html: descriptionRegex(
+                    ((data as VideoMetadata)?.content as string) || ""
+                  ),
+                }}
+              ></div>
             </div>
           </div>
         </div>
@@ -111,12 +119,15 @@ const MetadataSwitch: FunctionComponent<MetadataSwitchProps> = ({
               }`}
             >
               <div
-                className={`relative w-full h-fit flex rounded-lg border border-vil bg-dBlue overflow-y-scroll text-sun ${
+                className={`relative w-full h-fit flex rounded-lg border whitespace-noline border-viol bg-dBlue overflow-y-scroll text-sun ${
                   setImageView ? "max-h-44 p-6 text-sm" : "max-h-20 p-1 text-xs"
                 }`}
-              >
-                {(data as ImageMetadata)?.content as string}
-              </div>
+                dangerouslySetInnerHTML={{
+                  __html: descriptionRegex(
+                    ((data as ImageMetadata)?.content as string) || ""
+                  ),
+                }}
+              ></div>
             </div>
           </div>
         </div>
@@ -137,12 +148,15 @@ const MetadataSwitch: FunctionComponent<MetadataSwitchProps> = ({
             }`}
           >
             <div
-              className={`relative w-full h-fit flex rounded-lg border border-vil bg-dBlue overflow-y-scroll text-sun ${
+              className={`relative w-full h-fit flex rounded-lg border border-viol whitespace-noline bg-dBlue overflow-y-scroll text-sun ${
                 setImageView ? "max-h-44 p-6 text-sm" : "max-h-20 p-1 text-xs"
               }`}
-            >
-              {(data as ImageMetadata)?.content as string}
-            </div>
+              dangerouslySetInnerHTML={{
+                __html: descriptionRegex(
+                  ((data as TextOnlyMetadata)?.content as string) || ""
+                ),
+              }}
+            ></div>
           </div>
         </div>
       );

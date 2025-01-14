@@ -10,7 +10,7 @@ import { hsvaToHex, HsvaColor } from "@uiw/color-convert";
 import { CurrentSession } from "@/components/Common/types/common.types";
 
 const useImage = (
-  postLoading: boolean,
+  saveSessionLoading: boolean,
   setCurrentSession: (e: SetStateAction<CurrentSession>) => void
 ) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -26,6 +26,7 @@ const useImage = (
   const [brushSize, setBrushSize] = useState<number>(5);
 
   const updateImageData = () => {
+    if (saveSessionLoading) return;
     const canvas = canvasRef.current;
     if (canvas) {
       canvas.toBlob((blob) => {
@@ -40,7 +41,7 @@ const useImage = (
   };
 
   const handleUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    if (postLoading) return;
+    if (saveSessionLoading) return;
     const file = event.target.files?.[0];
     if (file) {
       const img = new Image();
@@ -67,7 +68,7 @@ const useImage = (
       };
     }
   };
-  const handleMouseDown = () => !postLoading && setDrawing(true);
+  const handleMouseDown = () => !saveSessionLoading && setDrawing(true);
 
   const handleMouseUp = () => {
     setDrawing(false);
@@ -77,7 +78,7 @@ const useImage = (
   const handleMouseMove = (
     event: MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
-    if (!drawing || !image || postLoading) return;
+    if (!drawing || !image || saveSessionLoading) return;
     const canvas = canvasRef.current;
 
     if (canvas) {
@@ -96,6 +97,7 @@ const useImage = (
   };
 
   const clearImage = () => {
+    if (saveSessionLoading) return;
     setImage(null);
     const canvas = canvasRef.current;
     if (canvas) {
@@ -116,11 +118,13 @@ const useImage = (
   };
 
   useEffect(() => {
-    if (canvasRef) {
+    if (canvasRef && !saveSessionLoading) {
       configureCanvas();
       updateImageData();
     }
-  }, [canvasRef, parentRef]);
+  }, [canvasRef, parentRef, saveSessionLoading]);
+
+
 
   return {
     handleMouseDown,

@@ -35,6 +35,7 @@ export const ActivePost: FunctionComponent<ActivePostProps> = ({
                     <Image
                       layout="fill"
                       objectFit="cover"
+                      className="rounded-full"
                       draggable={false}
                       src={`${INFURA_GATEWAY}${
                         (post as Post)?.author?.metadata?.picture?.split(

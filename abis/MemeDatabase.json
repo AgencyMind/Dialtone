@@ -4,8 +4,36 @@
     "type": "function",
     "name": "addMeme",
     "inputs": [
+      { "name": "name", "type": "string", "internalType": "string" },
+      { "name": "symbol", "type": "string", "internalType": "string" },
       { "name": "data", "type": "string", "internalType": "string" },
-      { "name": "token", "type": "address", "internalType": "address" }
+      { "name": "feedContract", "type": "address", "internalType": "address" },
+      { "name": "initialSupply", "type": "uint256", "internalType": "uint256" },
+      { "name": "maxSupply", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addTokenAdmin",
+    "inputs": [
+      { "name": "newAdmin", "type": "address", "internalType": "address" },
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "addWorkflows",
+    "inputs": [
+      {
+        "name": "_workflows",
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      },
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
@@ -14,6 +42,17 @@
     "type": "function",
     "name": "deleteMeme",
     "inputs": [
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "editMeme",
+    "inputs": [
+      { "name": "data", "type": "string", "internalType": "string" },
+      { "name": "feedContract", "type": "address", "internalType": "address" },
       { "name": "memeId", "type": "uint256", "internalType": "uint256" }
     ],
     "outputs": [],
@@ -54,11 +93,107 @@
     "stateMutability": "view"
   },
   {
+    "type": "function",
+    "name": "getMemeTokenFeed",
+    "inputs": [
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMemeTokenName",
+    "inputs": [
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMemeTokenSymbol",
+    "inputs": [
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "string", "internalType": "string" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMemeTokenWorkflows",
+    "inputs": [
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [
+      { "name": "", "type": "uint256[]", "internalType": "uint256[]" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "isTokenAdmin",
+    "inputs": [
+      { "name": "wallet", "type": "address", "internalType": "address" },
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "removeTokenAdmin",
+    "inputs": [
+      { "name": "newAdmin", "type": "address", "internalType": "address" },
+      { "name": "memeId", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "event",
+    "name": "AdminAdded",
+    "inputs": [
+      {
+        "name": "wallet",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "memeId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "AdminRemoved",
+    "inputs": [
+      {
+        "name": "wallet",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "memeId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
     "type": "event",
     "name": "MemeAdded",
     "inputs": [
       {
-        "name": "sessionId",
+        "name": "memeId",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -77,7 +212,7 @@
     "name": "MemeDeleted",
     "inputs": [
       {
-        "name": "sessionId",
+        "name": "memeId",
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
@@ -85,5 +220,33 @@
     ],
     "anonymous": false
   },
+  {
+    "type": "event",
+    "name": "MemeEdited",
+    "inputs": [
+      {
+        "name": "memeId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "WorkflowsAdded",
+    "inputs": [
+      {
+        "name": "memeId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  { "type": "error", "name": "CantAddSelf", "inputs": [] },
+  { "type": "error", "name": "CantRemoveSelf", "inputs": [] },
   { "type": "error", "name": "NotMemeOwner", "inputs": [] }
 ]

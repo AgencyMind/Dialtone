@@ -17,6 +17,7 @@ import {
   LensAccount,
 } from "@/components/Common/types/common.types";
 import { EditorType } from "@/components/Feed/types/feed.types";
+import { AccessControlParams } from "@livepeer/react";
 
 export const config = getDefaultConfig({
   appName: "Dialtone",
@@ -32,8 +33,42 @@ const queryClient = new QueryClient();
 
 export const AppContext = createContext<
   | {
-      aiKey: string | undefined;
-      setAiKey: (e: SetStateAction<string | undefined>) => void;
+      postLive: boolean;
+      setPostLive: (e: SetStateAction<boolean>) => void;
+      aiDetails: {
+        data?: {
+          openAikey?: string;
+          instructionsOpenAi?: string;
+          modelOpenAi: string;
+          claudekey?: string;
+          instructionsClaude?: string;
+          modelClaude: string;
+        };
+        json?: {
+          dataToEncryptHash: string;
+          accessControlConditions: AccessControlParams[];
+          ciphertext: string;
+        };
+        decrypted: boolean;
+      };
+      setAiDetails: (
+        e: SetStateAction<{
+          data?: {
+            openAikey?: string;
+            instructionsOpenAi?: string;
+            modelOpenAi: string;
+            claudekey?: string;
+            instructionsClaude?: string;
+            modelClaude: string;
+          };
+          json?: {
+            dataToEncryptHash: string;
+            accessControlConditions: AccessControlParams[];
+            ciphertext: string;
+          };
+          decrypted: boolean;
+        }>
+      ) => void;
       imageView: string | undefined;
       setImageView: (e: SetStateAction<string | undefined>) => void;
       lensAccount: LensAccount | undefined;
@@ -63,11 +98,33 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const [imageView, setImageView] = useState<string | undefined>();
   const [lensAccount, setLensAccount] = useState<LensAccount | undefined>();
   const [livepeer, setLivepeer] = useState<Livepeer | undefined>();
-  const [aiKey, setAiKey] = useState<string | undefined>("");
+  const [aiDetails, setAiDetails] = useState<{
+    data?: {
+      openAikey?: string;
+      instructionsOpenAi?: string;
+      modelOpenAi: string;
+      claudekey?: string;
+      instructionsClaude?: string;
+      modelClaude: string;
+    };
+    json?: {
+      dataToEncryptHash: string;
+      accessControlConditions: AccessControlParams[];
+      ciphertext: string;
+    };
+    decrypted: boolean;
+  }>({
+    decrypted: false,
+    data: {
+      modelOpenAi: "gpt-4o-mini-2024-07-18",
+      modelClaude: "claude-3-5-haiku-latest",
+    },
+  });
   const [lensClient, setLensClient] = useState<PublicClient | undefined>();
   const [indexer, setIndexer] = useState<string | undefined>();
   const [createAccount, setCreateAccount] = useState<boolean>(false);
   const [notification, setNotification] = useState<string | undefined>();
+  const [postLive, setPostLive] = useState<boolean>(false);
   const [signless, setSignless] = useState<boolean>(false);
   const [gifOpen, setGifOpen] = useState<{
     id: string;
@@ -112,6 +169,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               imageView,
               setImageView,
               lensAccount,
+              postLive,
+              setPostLive,
               setLensAccount,
               lensClient,
               storageClient,
@@ -127,8 +186,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               setGifOpen,
               signless,
               setSignless,
-              aiKey,
-              setAiKey,
+              aiDetails,
+              setAiDetails,
               livepeer,
             }}
           >

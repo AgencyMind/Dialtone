@@ -6,6 +6,9 @@ import {
   SessionClient,
 } from "@lens-protocol/client";
 import { StorageClient } from "@lens-protocol/storage-node-client";
+import { AccessControlParams } from "@livepeer/react";
+import { Stream } from "livepeer/models/components";
+import { GetSessionResponse } from "livepeer/models/operations";
 import { SetStateAction } from "react";
 
 export interface Screen {
@@ -14,6 +17,8 @@ export interface Screen {
 }
 
 export type ScreenSwitchProps = {
+  handleDecryptAiDetails: () => Promise<void>;
+  decryptAiDetailsLoading: boolean;
   screen: Screen;
   gifOpen: {
     id: string;
@@ -23,7 +28,22 @@ export type ScreenSwitchProps = {
   lensAccount: LensAccount | undefined;
   setExpand: (e: SetStateAction<boolean>) => void;
   expand: boolean;
-  aiKey: string | undefined;
+  aiDetails: {
+    data?: {
+      openAikey?: string;
+      instructionsOpenAi?: string;
+      modelOpenAi: string;
+      claudekey?: string;
+      instructionsClaude?: string;
+      modelClaude: string;
+    };
+    json?: {
+      dataToEncryptHash: string;
+      accessControlConditions: AccessControlParams[];
+      ciphertext: string;
+    };
+    decrypted: boolean;
+  };
   storageClient: StorageClient;
   setSignless: (e: SetStateAction<boolean>) => void;
   setIndexer: (e: SetStateAction<string | undefined>) => void;
@@ -40,6 +60,7 @@ export type ScreenSwitchProps = {
   setScreen: (e: SetStateAction<Screen>) => void;
   setCurrentSession: (e: SetStateAction<CurrentSession>) => void;
   currentSession: CurrentSession;
+  setPostLive: (e: SetStateAction<boolean>) => void;
 };
 
 export interface LensAccount {
@@ -52,5 +73,7 @@ export interface CurrentSession {
   editors: EditorType[];
   currentIndex: number;
   image?: Blob | undefined;
-  video?: any;
+  video?: Stream;
+  text?: string;
+  videoEdit?: GetSessionResponse;
 }

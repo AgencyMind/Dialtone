@@ -11,14 +11,31 @@ import { chains } from "@lens-network/sdk/viem";
 import SessionDatabaseAbi from "@abis/SessionDatabase.json";
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import { LIT_NETWORK } from "@lit-protocol/constants";
+import { AccessControlParams } from "@livepeer/react";
 
 const useUpdateAccount = (
   lensAccount: LensAccount | undefined,
   storageClient: StorageClient,
   setLensAccount: (e: SetStateAction<LensAccount | undefined>) => void,
-  aiKey: string | undefined,
+  aiDetails: {
+    data?: {
+      openAikey?: string;
+      instructionsOpenAi?: string;
+      modelOpenAi: string;
+      claudekey?: string;
+      instructionsClaude?: string;
+      modelClaude: string;
+    };
+    json?: {
+      dataToEncryptHash: string;
+      accessControlConditions: AccessControlParams[];
+      ciphertext: string;
+    };
+    decrypted: boolean;
+  },
   publicClient: PublicClient,
-  address: `0x${string}` | undefined
+  address: `0x${string}` | undefined,
+  setNotification: (e: SetStateAction<string | undefined>) => void
 ) => {
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
   const [aiLoading, setAiLoading] = useState<boolean>(false);
@@ -28,12 +45,20 @@ const useUpdateAccount = (
     bio: string;
     name: string;
   }>({
+    pfp: lensAccount?.account?.metadata?.picture,
+    cover: lensAccount?.account?.metadata?.coverPicture,
     bio: lensAccount?.account?.metadata?.bio || "",
     name: lensAccount?.account?.metadata?.name || "",
   });
+  const [modelOpenAiOpen, setModelOpenAiOpen] = useState<boolean>(false);
+  const [modelClaudeOpen, setModelClaudeOpen] = useState<boolean>(false);
 
-  const handleSetAIKey = async () => {
-    if (!aiKey || !address) return;
+  const handleSetAIDetails = async () => {
+    if (
+      (!aiDetails?.data?.openAikey && !aiDetails?.data?.claudekey) ||
+      !address
+    )
+      return;
     setAiLoading(true);
     try {
       const litClient = new LitJsSdk.LitNodeClientNodeJs({
@@ -42,7 +67,6 @@ const useUpdateAccount = (
         debug: true,
       });
       await litClient.connect();
-
       const accessControlConditions = [
         {
           contractAddress: "",
@@ -60,7 +84,7 @@ const useUpdateAccount = (
       const encoder = new TextEncoder();
       const { ciphertext, dataToEncryptHash } = await litClient.encrypt({
         accessControlConditions,
-        dataToEncrypt: encoder.encode(aiKey),
+        dataToEncrypt: encoder.encode(JSON.stringify(aiDetails?.data)),
       });
 
       const ipfsRes = await fetch("/api/ipfs", {
@@ -91,6 +115,8 @@ const useUpdateAccount = (
       await publicClient.waitForTransactionReceipt({
         hash: res,
       });
+
+      setNotification?.("AI Config Set. Start a new session.");
     } catch (err: any) {
       console.error(err.message);
     }
@@ -212,8 +238,12 @@ const useUpdateAccount = (
     setUpdatedAccount,
     handleUpdateAccount,
     updateLoading,
-    handleSetAIKey,
+    handleSetAIDetails,
     aiLoading,
+    modelOpenAiOpen,
+    setModelOpenAiOpen,
+    modelClaudeOpen,
+    setModelClaudeOpen,
   };
 };
 

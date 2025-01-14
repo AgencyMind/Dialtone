@@ -2,8 +2,8 @@ import { dialtoneGraphClient } from "@/lib/graph/client";
 import { FetchResult, gql } from "@apollo/client";
 
 const MEMES = gql`
-  query ($skip: Int!) {
-    memeAddeds(first: 20, skip: $skip) {
+  query ($owner: String!) {
+    memeAddeds(where: { owner: $owner }) {
       id
       data
       blockNumber
@@ -23,12 +23,14 @@ const MEMES = gql`
   }
 `;
 
-export const getMemes = async (skip: number): Promise<FetchResult | void> => {
+export const getUserMemes = async (
+  owner: string
+): Promise<FetchResult | void> => {
   let timeoutId: NodeJS.Timeout | undefined;
   const queryPromise = dialtoneGraphClient.query({
     query: MEMES,
     variables: {
-      skip,
+      owner,
     },
     fetchPolicy: "no-cache",
     errorPolicy: "all",
