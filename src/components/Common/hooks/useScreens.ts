@@ -280,7 +280,7 @@ const useScreens = (
 
       if (auth?.isOk()) {
         const res = await revokeAuthentication(lensAccount?.sessionClient!, {
-          authenticationId: auth.value?.authentication_id,
+          authenticationId: auth.value?.authenticationId,
         });
 
         if (res) {
