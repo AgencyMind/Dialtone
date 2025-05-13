@@ -16,10 +16,27 @@
   display: none;
 }
 
+/* Default styles for when the app is visible */
 html {
   font-family: "Perfect";
   background: url("https://thedial.infura-ipfs.io/ipfs/QmaZMj3P6ai49RNrsARwGGAuVaBaZ27mVbQbqzLLGC9p22");
   background-color: #EDC6FF;
+}
+
+/* Gradient-only styles */
+html.gradient-only,
+html.gradient-only body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #001f3f, #0074D9, #39CCCC);
+  background-size: 200% 200%;
+  animation: gradientAnimation 10s ease infinite;
+}
+
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .ProseMirror:focus {
