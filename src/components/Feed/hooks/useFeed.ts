@@ -208,7 +208,8 @@ const useFeed = (
             (_) => EditorType.Video
           ),
         }));
-        setPaginated(res?.value?.pageInfo?.next);
+        // setPaginated(res?.value?.pageInfo?.next);
+        setPaginated(res?.value?.pageInfo?.next === null ? undefined : res?.value?.pageInfo?.next);
       }
     } catch (err: any) {
       console.error(err.message);
