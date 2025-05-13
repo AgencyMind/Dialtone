@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
-import Modals from "@/components/Modals/modules/Modals";
 import Providers from "./providers";
+import LayoutWrapper from "./LayoutWrapper";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.dialtone.club"),
@@ -41,8 +41,7 @@ export default function RootLayout({
     <html>
       <body>
         <Providers>
-          {children}
-          <Modals />
+          <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>
       </body>
     </html>
