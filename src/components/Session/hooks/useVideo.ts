@@ -120,15 +120,23 @@ const useVideo = (
 
   const sendFilterOffer = async (offer: RTCSessionDescriptionInit) => {
     try {
-      const json = await import("C:/Users/jk/Downloads/dialtone/dialtone/public/workflows/" + filter.replaceAll(" ", "") + ".json")
+      const workflowFilename = filter.replaceAll(" ", "") + ".json";
+      const workflowResponse = await fetch(`/workflows/${workflowFilename}`);
+
+      if (!workflowResponse.ok) {
+        console.error(`Error fetching workflow ${workflowFilename}: ${workflowResponse.status} ${workflowResponse.statusText}`);
+        throw new Error(`Could not load workflow: ${workflowFilename}`);
+      }
+      const workflowJsonData = await workflowResponse.json(); 
+
       const response = await fetch("/api/offer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          endpoint: "http://127.0.0.1:8889",
-          prompt: json.default,
+          endpoint: "http://127.0.0.1:8889", 
+          prompt: workflowJsonData,          
           offer,
         }),
       });
