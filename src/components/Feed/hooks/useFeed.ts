@@ -276,7 +276,8 @@ const useFeed = (
             ),
           ],
         }));
-        setPaginated(res?.value?.pageInfo?.next);
+        // setPaginated(res?.value?.pageInfo?.next);
+        setPaginated(res?.value?.pageInfo?.next || undefined);
       }
     } catch (err: any) {
       console.error(err.message);
@@ -336,7 +337,8 @@ const useFeed = (
             (_) => EditorType.Video
           ),
         }));
-        setProfilePaginated(res?.value?.pageInfo?.next);
+        // setProfilePaginated(res?.value?.pageInfo?.next);
+        setProfilePaginated(res?.value?.pageInfo?.next || undefined);
       }
     } catch (err: any) {
       console.error(err.message);
@@ -400,7 +402,8 @@ const useFeed = (
             ),
           ],
         }));
-        setProfilePaginated(res?.value?.pageInfo?.next);
+        // setProfilePaginated(res?.value?.pageInfo?.next);
+        setProfilePaginated(res?.value?.pageInfo?.next || undefined);
       }
     } catch (err: any) {
       console.error(err.message);
@@ -459,7 +462,8 @@ const useFeed = (
             (_) => EditorType.Video
           ),
         }));
-        setFeedPaginated(res?.value?.pageInfo?.next);
+        // setFeedPaginated(res?.value?.pageInfo?.next);
+        setFeedPaginated(res?.value?.pageInfo?.next || undefined);
       }
     } catch (err: any) {
       console.error(err.message);
@@ -522,7 +526,8 @@ const useFeed = (
             ),
           ],
         }));
-        setFeedPaginated(res?.value?.pageInfo?.next);
+        // setFeedPaginated(res?.value?.pageInfo?.next);
+        setFeedPaginated(res?.value?.pageInfo?.next || undefined);
       }
     } catch (err: any) {
       console.error(err.message);
